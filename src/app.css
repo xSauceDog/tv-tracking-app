@@ -23,6 +23,13 @@
 }
 
 @layer components {
+	.icon-btn {
+		@apply inline-flex size-9 shrink-0 items-center justify-center rounded-lg text-zinc-400 transition hover:bg-white/10 hover:text-zinc-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-400 active:scale-90 disabled:pointer-events-none disabled:opacity-30;
+	}
+	/* The floating clone svelte-dnd-action creates while dragging */
+	#dnd-action-dragged-el {
+		@apply shadow-2xl ring-1 shadow-black/50 ring-brand-400/60;
+	}
 	.btn {
 		@apply inline-flex h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm font-medium transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-400 disabled:pointer-events-none disabled:opacity-50;
 	}

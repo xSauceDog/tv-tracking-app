@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from "$app/paths";
 	let { data } = $props();
 	const name = $derived(data.profile?.display_name ?? data.profile?.username ?? "there");
 </script>
@@ -9,6 +10,6 @@
 <p class="mt-1 text-zinc-400">@{data.profile?.username}</p>
 
 <div class="card mt-8 text-center">
-	<p class="text-zinc-300">Your lists will live here.</p>
-	<p class="mt-1 text-sm text-zinc-500">Next up: create your first ranking.</p>
+	<p class="text-zinc-300">Ready to rank?</p>
+	<a href={resolve("/(app)/lists")} class="btn btn-primary mt-4">Go to my lists</a>
 </div>
