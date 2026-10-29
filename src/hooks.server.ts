@@ -1,8 +1,8 @@
-import { createServerClient } from '@supabase/ssr';
-import { redirect } from '@sveltejs/kit';
-import { sequence, type Handle } from '@sveltejs/kit/hooks';
-import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_PUBLISHABLE_KEY } from '$app/env/public';
-import type { Database } from '#lib/database.types.js';
+import { createServerClient } from "@supabase/ssr";
+import { redirect } from "@sveltejs/kit";
+import { sequence, type Handle } from "@sveltejs/kit/hooks";
+import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_PUBLISHABLE_KEY } from "$app/env/public";
+import type { Database } from "#lib/database.types.js";
 
 const supabase: Handle = async ({ event, resolve }) => {
 	event.locals.supabase = createServerClient<Database>(
@@ -13,7 +13,7 @@ const supabase: Handle = async ({ event, resolve }) => {
 				getAll: () => event.cookies.getAll(),
 				setAll: (cookiesToSet) =>
 					cookiesToSet.forEach(({ name, value, options }) =>
-						event.cookies.set(name, value, { ...options, path: '/' })
+						event.cookies.set(name, value, { ...options, path: "/" })
 					)
 			}
 		}
@@ -35,7 +35,7 @@ const supabase: Handle = async ({ event, resolve }) => {
 
 	return resolve(event, {
 		filterSerializedResponseHeaders: (name) =>
-			name === 'content-range' || name === 'x-supabase-api-version'
+			name === "content-range" || name === "x-supabase-api-version"
 	});
 };
 
@@ -45,7 +45,7 @@ const authGuard: Handle = async ({ event, resolve }) => {
 	event.locals.user = user;
 
 	// Everything under src/routes/(app)/ (pages AND +server endpoints) requires auth.
-	if (event.route.id?.startsWith('/(app)') && !user) {
+	if (event.route.id?.startsWith("/(app)") && !user) {
 		const next = event.url.pathname + event.url.search;
 		redirect(303, `/login?next=${encodeURIComponent(next)}`);
 	}
@@ -55,13 +55,13 @@ const authGuard: Handle = async ({ event, resolve }) => {
 
 const securityHeaders: Handle = async ({ event, resolve }) => {
 	const response = await resolve(event);
-	response.headers.set('X-Content-Type-Options', 'nosniff');
-	response.headers.set('X-Frame-Options', 'DENY');
-	response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin');
-	response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+	response.headers.set("X-Content-Type-Options", "nosniff");
+	response.headers.set("X-Frame-Options", "DENY");
+	response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
+	response.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
 
-	if (event.route.id?.startsWith('/(app)')) {
-		response.headers.set('Cache-Control', 'private, no-store');
+	if (event.route.id?.startsWith("/(app)")) {
+		response.headers.set("Cache-Control", "private, no-store");
 	}
 	return response;
 };

@@ -1,12 +1,12 @@
 <script lang="ts">
-	import { page } from '$app/state';
-	import { House, Settings, Tv } from '@lucide/svelte';
+	import { page } from "$app/state";
+	import { House, Settings, Tv } from "@lucide/svelte";
 
 	let { children } = $props();
 
 	const links = [
-		{ href: '/dashboard', label: 'Home', icon: House },
-		{ href: '/settings', label: 'Settings', icon: Settings }
+		{ href: "/dashboard", label: "Home", icon: House },
+		{ href: "/settings", label: "Settings", icon: Settings }
 	];
 	const isActive = (href: string) => page.url.pathname.startsWith(href);
 </script>
@@ -15,14 +15,14 @@
 	<header class="sticky top-0 z-30 border-b border-white/10 bg-zinc-950/70 backdrop-blur-xl">
 		<div class="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
 			<a href="/dashboard" class="flex items-center gap-2 font-semibold">
-				<Tv class="text-brand-400 size-5" /> Rankr
+				<Tv class="size-5 text-brand-400" /> Rankr
 			</a>
 
 			<nav class="hidden items-center gap-1 md:flex" aria-label="Main">
 				{#each links as link}
 					<a
 						href={link.href}
-						aria-current={isActive(link.href) ? 'page' : undefined}
+						aria-current={isActive(link.href) ? "page" : undefined}
 						class="rounded-lg px-3 py-1.5 text-sm text-zinc-400 transition hover:text-zinc-100 aria-[current=page]:bg-white/10 aria-[current=page]:text-zinc-100"
 					>
 						{link.label}
@@ -47,8 +47,8 @@
 		{#each links as link}
 			<a
 				href={link.href}
-				aria-current={isActive(link.href) ? 'page' : undefined}
-				class="aria-[current=page]:text-brand-300 flex flex-col items-center gap-1 py-2.5 text-xs text-zinc-500"
+				aria-current={isActive(link.href) ? "page" : undefined}
+				class="flex flex-col items-center gap-1 py-2.5 text-xs text-zinc-500 aria-[current=page]:text-brand-300"
 			>
 				<link.icon class="size-5" />
 				{link.label}

@@ -1,4 +1,4 @@
-import { defineEnvVars } from '@sveltejs/kit/env';
+import { defineEnvVars } from "@sveltejs/kit/env";
 
 export const variables = defineEnvVars({
 	PUBLIC_SUPABASE_URL: { public: true, static: true },

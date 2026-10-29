@@ -1,6 +1,6 @@
 <script lang="ts">
 	let { data } = $props();
-	const name = $derived(data.profile?.display_name ?? data.profile?.username ?? 'there');
+	const name = $derived(data.profile?.display_name ?? data.profile?.username ?? "there");
 </script>
 
 <svelte:head><title>Dashboard · Rankr</title></svelte:head>
