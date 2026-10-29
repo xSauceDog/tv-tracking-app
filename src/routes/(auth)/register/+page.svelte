@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from "$app/paths";
 	import { enhance } from "$app/forms";
 	import Field from "#lib/components/Field.svelte";
 
@@ -69,6 +70,9 @@
 	</form>
 
 	<p class="mt-6 text-center text-sm text-zinc-400">
-		Already have an account? <a class="text-brand-300 hover:underline" href="/login">Sign in</a>
+		Already have an account? <a
+			class="text-brand-300 hover:underline"
+			href={resolve("/(auth)/login")}>Sign in</a
+		>
 	</p>
 {/if}

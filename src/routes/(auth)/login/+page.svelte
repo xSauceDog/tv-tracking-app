@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from "$app/paths";
 	import { enhance } from "$app/forms";
 	import { page } from "$app/state";
 	import Field from "#lib/components/Field.svelte";
@@ -65,5 +66,7 @@
 </form>
 
 <p class="mt-6 text-center text-sm text-zinc-400">
-	New here? <a class="text-brand-300 hover:underline" href="/register">Create an account</a>
+	New here? <a class="text-brand-300 hover:underline" href={resolve("/(auth)/register")}
+		>Create an account</a
+	>
 </p>

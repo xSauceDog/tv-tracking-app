@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { resolve } from "$app/paths";
 	import { Tv } from "@lucide/svelte";
 	let { data } = $props();
 </script>
@@ -21,10 +22,10 @@
 	</p>
 	<div class="mt-8 flex flex-wrap justify-center gap-3">
 		{#if data.user}
-			<a href="/dashboard" class="btn btn-primary">Go to dashboard</a>
+			<a href={resolve("/(app)/dashboard")} class="btn btn-primary">Go to dashboard</a>
 		{:else}
-			<a href="/register" class="btn btn-primary">Get started</a>
-			<a href="/login" class="btn btn-ghost">Sign in</a>
+			<a href={resolve("/(auth)/register")} class="btn btn-primary">Get started</a>
+			<a href={resolve("/(auth)/login")} class="btn btn-ghost">Sign in</a>
 		{/if}
 	</div>
 </main>

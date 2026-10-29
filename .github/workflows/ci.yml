@@ -1,20 +1,21 @@
 name: CI
 on: [push, pull_request]
 
+env:
+  PUBLIC_SUPABASE_URL: https://example.supabase.co
+  PUBLIC_SUPABASE_PUBLISHABLE_KEY: placeholder
+
 jobs:
   check:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with: { version: 10 }
+      - uses: pnpm/action-setup@v4 # reads packageManager from package.json
       - uses: actions/setup-node@v4
         with: { node-version: 22, cache: pnpm }
       - run: pnpm install --frozen-lockfile
+      - run: pnpm exec playwright install --with-deps chromium
       - run: pnpm lint
       - run: pnpm check
       - run: pnpm test:unit --run
       - run: pnpm build
-        env:
-          PUBLIC_SUPABASE_URL: https://example.supabase.co
-          PUBLIC_SUPABASE_PUBLISHABLE_KEY: placeholder
