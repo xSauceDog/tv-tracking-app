@@ -1,6 +1,6 @@
 import { fail } from '@sveltejs/kit';
-import { profileSchema } from '$lib/schemas/auth';
-import { fieldErrors, type FieldErrors } from '$lib/utils/forms';
+import { profileSchema } from '#lib/schemas/auth.js';
+import { fieldErrors, type FieldErrors } from '#lib/utils/forms.js';
 import type { Actions } from './$types';
 
 export const actions: Actions = {
@@ -14,7 +14,7 @@ export const actions: Actions = {
 
 		const parsed = profileSchema.safeParse(form);
 		if (!parsed.success) {
-			return fail(400, { values, errors: fieldErrors(parsed.error) });
+			return fail(400, { values, errors: fieldErrors(parsed.error), message: undefined });
 		}
 
 		const { error } = await supabase.from('profiles').update(parsed.data).eq('id', user!.id);
@@ -23,7 +23,8 @@ export const actions: Actions = {
 			if (error.code === '23505') {
 				return fail(400, {
 					values,
-					errors: { username: ['That username is taken.'] } as FieldErrors
+					errors: { username: ['That username is taken.'] } as FieldErrors,
+					message: undefined
 				});
 			}
 			return fail(500, {

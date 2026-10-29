@@ -1,7 +1,7 @@
 import { fail, redirect } from '@sveltejs/kit';
-import { loginSchema, oauthProviderSchema } from '$lib/schemas/auth';
-import { fieldErrors, type FieldErrors } from '$lib/utils/forms';
-import { safeRedirectPath } from '$lib/utils/redirect';
+import { loginSchema, oauthProviderSchema } from '#lib/schemas/auth.js';
+import { fieldErrors, type FieldErrors } from '#lib/utils/forms.js';
+import { safeRedirectPath } from '#lib/utils/redirect.js';
 import type { Actions } from './$types';
 
 export const actions: Actions = {

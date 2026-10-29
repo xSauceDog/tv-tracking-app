@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
-	import Field from '$lib/components/Field.svelte';
+	import Field from '#lib/components/Field.svelte';
 
 	let { data, form } = $props();
 	let submitting = $state(false);

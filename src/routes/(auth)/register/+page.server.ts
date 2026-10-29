@@ -1,6 +1,6 @@
 import { fail, redirect } from '@sveltejs/kit';
-import { registerSchema } from '$lib/schemas/auth';
-import { fieldErrors, type FieldErrors } from '$lib/utils/forms';
+import { registerSchema } from '#lib/schemas/auth.js';
+import { fieldErrors, type FieldErrors } from '#lib/utils/forms.js';
 import type { Actions } from './$types';
 
 export const actions: Actions = {
@@ -10,7 +10,7 @@ export const actions: Actions = {
 
 		const parsed = registerSchema.safeParse(form);
 		if (!parsed.success) {
-			return fail(400, { ...values, errors: fieldErrors(parsed.error) });
+			return fail(400, { ...values, errors: fieldErrors(parsed.error), message: undefined });
 		}
 		const { email, username, password } = parsed.data;
 
@@ -23,7 +23,8 @@ export const actions: Actions = {
 		if (taken) {
 			return fail(400, {
 				...values,
-				errors: { username: ['That username is taken.'] } as FieldErrors
+				errors: { username: ['That username is taken.'] } as FieldErrors,
+				message: undefined
 			});
 		}
 
