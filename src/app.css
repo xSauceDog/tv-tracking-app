@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@plugin '@tailwindcss/forms';
 
 @theme {
 	--color-brand-300: oklch(0.82 0.12 295);

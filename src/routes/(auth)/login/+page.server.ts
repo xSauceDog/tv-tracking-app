@@ -5,7 +5,7 @@ import { safeRedirectPath } from '#lib/utils/redirect.js';
 import type { Actions } from './$types';
 
 export const actions: Actions = {
-	default: async ({ request, url, locals: { supabase } }) => {
+	login: async ({ request, url, locals: { supabase } }) => {
 		const form = Object.fromEntries(await request.formData());
 		const email = String(form.email ?? '');
 

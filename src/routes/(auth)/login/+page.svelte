@@ -22,6 +22,7 @@
 
 <form
 	method="POST"
+	action="?/login"
 	class="mt-6 space-y-4"
 	use:enhance={() => {
 		submitting = true;
