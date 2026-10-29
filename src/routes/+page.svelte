@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { Tv } from '@lucide/svelte';
+	import { Tv } from "@lucide/svelte";
 	let { data } = $props();
 </script>
 
@@ -11,9 +11,9 @@
 	class="mx-auto flex min-h-dvh max-w-3xl flex-col items-center justify-center px-6 text-center"
 >
 	<div
-		class="bg-brand-500/20 ring-brand-400/40 mb-6 grid size-14 place-items-center rounded-2xl ring-1"
+		class="mb-6 grid size-14 place-items-center rounded-2xl bg-brand-500/20 ring-1 ring-brand-400/40"
 	>
-		<Tv class="text-brand-300 size-7" />
+		<Tv class="size-7 text-brand-300" />
 	</div>
 	<h1 class="text-4xl font-semibold tracking-tight sm:text-6xl">Rank every show you love.</h1>
 	<p class="mt-4 max-w-xl text-lg text-zinc-400">

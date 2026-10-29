@@ -1,12 +1,12 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
-	import { page } from '$app/state';
-	import Field from '#lib/components/Field.svelte';
+	import { enhance } from "$app/forms";
+	import { page } from "$app/state";
+	import Field from "#lib/components/Field.svelte";
 
 	let { form } = $props();
 	let submitting = $state(false);
-	const next = $derived(page.url.searchParams.get('next') ?? '');
-	const urlError = $derived(page.url.searchParams.get('error'));
+	const next = $derived(page.url.searchParams.get("next") ?? "");
+	const urlError = $derived(page.url.searchParams.get("error"));
 </script>
 
 <svelte:head><title>Sign in · Rankr</title></svelte:head>
@@ -16,7 +16,7 @@
 
 {#if form?.message || urlError}
 	<p class="mt-4 rounded-xl bg-red-500/10 p-3 text-sm text-red-300" role="alert">
-		{form?.message ?? 'Something went wrong. Please try again.'}
+		{form?.message ?? "Something went wrong. Please try again."}
 	</p>
 {/if}
 
@@ -38,7 +38,7 @@
 		type="email"
 		autocomplete="email"
 		required
-		value={form?.email ?? ''}
+		value={form?.email ?? ""}
 		error={form?.errors?.email?.[0]}
 	/>
 	<Field
@@ -50,7 +50,7 @@
 		error={form?.errors?.password?.[0]}
 	/>
 	<button class="btn btn-primary w-full" disabled={submitting}>
-		{submitting ? 'Signing in…' : 'Sign in'}
+		{submitting ? "Signing in…" : "Sign in"}
 	</button>
 </form>
 

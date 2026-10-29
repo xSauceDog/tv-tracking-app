@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
-	import Field from '#lib/components/Field.svelte';
+	import { enhance } from "$app/forms";
+	import Field from "#lib/components/Field.svelte";
 
 	let { form } = $props();
 	let submitting = $state(false);
@@ -41,7 +41,7 @@
 			type="email"
 			autocomplete="email"
 			required
-			value={form?.email ?? ''}
+			value={form?.email ?? ""}
 			error={form?.errors?.email?.[0]}
 		/>
 		<Field
@@ -51,7 +51,7 @@
 			required
 			minlength={3}
 			maxlength={20}
-			value={form?.username ?? ''}
+			value={form?.username ?? ""}
 			error={form?.errors?.username?.[0]}
 		/>
 		<Field
@@ -64,7 +64,7 @@
 			error={form?.errors?.password?.[0]}
 		/>
 		<button class="btn btn-primary w-full" disabled={submitting}>
-			{submitting ? 'Creating account…' : 'Create account'}
+			{submitting ? "Creating account…" : "Create account"}
 		</button>
 	</form>
 
