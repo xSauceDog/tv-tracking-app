@@ -3,9 +3,9 @@
 	import { tick } from "svelte";
 	import { MediaQuery } from "svelte/reactivity";
 	import { deserialize, enhance } from "$app/forms";
-	import { invalidateAll } from "$app/navigation";
+	import { refreshAll } from "$app/navigation";
 	import { dragHandle, dragHandleZone, type DndEvent } from "svelte-dnd-action";
-	import { ChevronDown, ChevronUp, GripVertical, Trash2 } from "@lucide/svelte";
+	import { ChevronDown, ChevronUp, GripVertical, Trash } from "@lucide/svelte";
 
 	type Item = { id: string; title: string };
 
@@ -65,7 +65,7 @@
 				if (!(await save(items.map((i) => i.id)))) {
 					status = "error";
 					announcement = "Couldn't save the new order. Restoring the previous order.";
-					await invalidateAll(); // pull the real order back from the server
+					await refreshAll(); // pull the real order back from the server
 					return;
 				}
 				savedKey = key;
@@ -169,7 +169,7 @@
 				</span>
 
 				<p
-					class="line-clamp-2 min-w-0 flex-1 text-sm leading-snug font-medium break-words sm:text-base"
+					class="line-clamp-2 min-w-0 flex-1 text-sm leading-snug font-medium wrap-break-word sm:text-base"
 				>
 					{item.title}
 				</p>
@@ -198,7 +198,7 @@
 				<form method="POST" action="?/remove" use:enhance>
 					<input type="hidden" name="id" value={item.id} />
 					<button class="icon-btn hover:text-red-300" aria-label="Remove {item.title}">
-						<Trash2 class="size-4" />
+						<Trash class="size-4" />
 					</button>
 				</form>
 			</li>

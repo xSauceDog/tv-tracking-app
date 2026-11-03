@@ -3,6 +3,7 @@ import { loginSchema, oauthProviderSchema } from "#lib/schemas/auth.js";
 import { fieldErrors, type FieldErrors } from "#lib/utils/forms.js";
 import { safeRedirectPath } from "#lib/utils/redirect.js";
 import type { Actions } from "./$types";
+import { PUBLIC_SUPABASE_URL } from "$app/env/public";
 
 export const actions: Actions = {
 	login: async ({ request, url, locals: { supabase } }) => {
@@ -43,6 +44,6 @@ export const actions: Actions = {
 				message: "Could not start sign-in."
 			});
 		}
-		redirect(303, data.url);
+		redirect(303, data.url, { external: [new URL(PUBLIC_SUPABASE_URL).origin] });
 	}
 };
