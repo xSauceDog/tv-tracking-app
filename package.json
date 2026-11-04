@@ -18,7 +18,7 @@
 		"test:e2e": "playwright install && playwright test",
 		"db:start": "supabase start",
 		"db:reset": "supabase db reset",
-		"db:types": "supabase gen types typescript --local > src/lib/database.types.ts"
+		"db:types": "supabase gen types typescript --linked > src/lib/database.types.ts"
 	},
 	"devDependencies": {
 		"@eslint/js": "^10.0.1",

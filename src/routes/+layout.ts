@@ -15,5 +15,5 @@ export const load: LayoutLoad = async ({ data, depends, fetch }) => {
 				cookies: { getAll: () => data.cookies }
 			});
 
-	return { supabase, session: data.session, user: data.user };
+	return { supabase, user: data.user, expiresAt: data.expiresAt };
 };

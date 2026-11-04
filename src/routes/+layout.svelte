@@ -4,11 +4,11 @@
 	import { onMount } from "svelte";
 
 	let { data, children } = $props();
-	let { supabase, session } = $derived(data);
+	let { supabase, expiresAt } = $derived(data);
 
 	onMount(() => {
 		const { data: listener } = supabase.auth.onAuthStateChange((_event, newSession) => {
-			if (newSession?.expires_at !== session?.expires_at) invalidate("supabase:auth");
+			if ((newSession?.expires_at ?? null) !== expiresAt) invalidate("supabase:auth");
 		});
 		return () => listener.subscription.unsubscribe();
 	});

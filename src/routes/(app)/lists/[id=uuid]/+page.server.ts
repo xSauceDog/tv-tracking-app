@@ -1,15 +1,19 @@
 import { error, fail, redirect } from "@sveltejs/kit";
 import { resolve } from "$app/paths";
-import { itemSchema, listSchema, removeItemSchema, reorderSchema } from "#lib/schemas/lists.js";
 import { fieldErrors } from "#lib/utils/forms.js";
 import type { Actions, PageServerLoad } from "./$types";
+import { addShowSchema } from "#lib/schemas/shows.js";
+import { ensureShow } from "#lib/server/shows.js";
+import { listSchema, removeItemSchema, reorderSchema } from "#lib/schemas/lists.js";
 
 export const load: PageServerLoad = async ({ params, locals: { supabase, user } }) => {
 	// One round trip: the list plus its items, already in rank order.
 	// Scoped to the owner: this page is for editing; public viewing will be a separate route.
 	const { data: list, error: dbError } = await supabase
 		.from("lists")
-		.select("id, name, is_public, items:list_items(id, title, position)")
+		.select(
+			"id, name, is_public, items:list_items(id, position, show:shows(id, tmdb_id, name, poster_path, first_air_date))"
+		)
 		.eq("id", params.id)
 		.eq("user_id", user!.id)
 		.order("position", { referencedTable: "list_items" })
@@ -22,22 +26,25 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, user } 
 
 export const actions: Actions = {
 	add: async ({ request, params, locals: { supabase } }) => {
-		const form = Object.fromEntries(await request.formData());
-		const addTitle = String(form.title ?? "");
+		const parsed = addShowSchema.safeParse(Object.fromEntries(await request.formData()));
+		if (!parsed.success) return fail(400, { addError: "Pick a show from the results." });
 
-		const parsed = itemSchema.safeParse(form);
-		if (!parsed.success) {
-			return fail(400, {
-				addTitle,
-				addError: fieldErrors(parsed.error).title?.[0] ?? "Invalid title"
-			});
+		let showId: string | null;
+		try {
+			showId = await ensureShow(supabase, parsed.data.tmdb_id);
+		} catch (e) {
+			console.error("ensureShow failed", e);
+			return fail(502, { addError: "Couldn't reach the show database. Try again." });
 		}
+		if (!showId) return fail(404, { addError: "That show doesn't exist anymore." });
 
 		// RLS rejects this if the list isn't the caller's; position is set by trigger.
 		const { error: dbError } = await supabase
 			.from("list_items")
-			.insert({ list_id: params.id, title: parsed.data.title });
-		if (dbError) return fail(500, { addTitle, addError: "Could not add that show." });
+			.insert({ list_id: params.id, show_id: showId });
+		if (dbError?.code === "23505")
+			return fail(409, { addError: "That show is already in this list." });
+		if (dbError) return fail(500, { addError: "Could not add that show." });
 
 		return { added: true };
 	},

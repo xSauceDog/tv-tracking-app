@@ -1,12 +1,10 @@
 <script lang="ts">
 	import { enhance } from "$app/forms";
-	import { Plus } from "@lucide/svelte";
 	import Field from "#lib/components/Field.svelte";
 	import RankedList from "#lib/components/RankedList.svelte";
+	import ShowSearch from "#lib/components/ShowSearch.svelte";
 
 	let { data, form } = $props();
-	let adding = $state(false);
-	let titleInput = $state<HTMLInputElement>();
 	const count = $derived(data.list.items.length);
 </script>
 
@@ -22,39 +20,9 @@
 	<p class="mt-4 rounded-xl bg-red-500/10 p-3 text-sm text-red-300" role="alert">{form.message}</p>
 {/if}
 
-<form
-	method="POST"
-	action="?/add"
-	class="mt-6"
-	use:enhance={() => {
-		adding = true;
-		return async ({ update }) => {
-			await update();
-			adding = false;
-			titleInput?.focus(); // keep typing the next one
-		};
-	}}
->
-	<div class="flex gap-2">
-		<div class="field flex-1">
-			<input
-				bind:this={titleInput}
-				name="title"
-				aria-label="Show title"
-				placeholder="Add a show or anime…"
-				maxlength="120"
-				autocomplete="off"
-				required
-				aria-invalid={form?.addError ? true : undefined}
-				value={form?.addTitle ?? ""}
-			/>
-		</div>
-		<button class="btn btn-primary shrink-0" disabled={adding}>
-			<Plus class="size-4" /> Add
-		</button>
-	</div>
-	{#if form?.addError}<p class="field-error" role="alert">{form.addError}</p>{/if}
-</form>
+<div class="mt-6">
+	<ShowSearch existing={data.list.items.map((i) => i.show.tmdb_id)} error={form?.addError} />
+</div>
 
 <div class="mt-6">
 	{#key data.list.id}

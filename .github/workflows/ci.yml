@@ -4,6 +4,8 @@ on: [push, pull_request]
 env:
   PUBLIC_SUPABASE_URL: https://example.supabase.co
   PUBLIC_SUPABASE_PUBLISHABLE_KEY: placeholder
+  SUPABASE_SECRET_KEY: placeholder
+  TMDB_READ_TOKEN: placeholder
 
 jobs:
   check:

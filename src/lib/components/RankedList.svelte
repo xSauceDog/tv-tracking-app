@@ -6,8 +6,12 @@
 	import { refreshAll } from "$app/navigation";
 	import { dragHandle, dragHandleZone, type DndEvent } from "svelte-dnd-action";
 	import { ChevronDown, ChevronUp, GripVertical, Trash } from "@lucide/svelte";
+	import Poster from "#lib/components/Poster.svelte";
 
-	type Item = { id: string; title: string };
+	type Item = {
+		id: string;
+		show: { name: string; poster_path: string | null; first_air_date: string | null };
+	};
 
 	let { items: serverItems }: { items: Item[] } = $props();
 
@@ -93,7 +97,7 @@
 		const moved = next[target];
 		items = next;
 
-		announcement = `${moved.title} moved to position ${target + 1} of ${items.length}`;
+		announcement = `${moved.show.name} moved to position ${target + 1} of ${items.length}`;
 		movedId = moved.id;
 		clearTimeout(movedTimer);
 		movedTimer = setTimeout(() => (movedId = null), 700);
@@ -153,7 +157,7 @@
 			>
 				<div
 					use:dragHandle
-					aria-label="Drag to reorder {item.title}"
+					aria-label="Drag to reorder {item.show.name}"
 					class="grid size-9 shrink-0 cursor-grab touch-none place-items-center rounded-lg text-zinc-500 hover:text-zinc-200 active:cursor-grabbing"
 				>
 					<GripVertical class="size-5" />
@@ -167,11 +171,15 @@
 				>
 					{i + 1}
 				</span>
-
+				<Poster
+					path={item.show.poster_path}
+					class="w-9 shrink-0 sm:w-11"
+					sizes="(min-width: 640px) 44px, 36px"
+				/>
 				<p
 					class="line-clamp-2 min-w-0 flex-1 text-sm leading-snug font-medium wrap-break-word sm:text-base"
 				>
-					{item.title}
+					{item.show.name}
 				</p>
 
 				<button
@@ -179,7 +187,7 @@
 					class="icon-btn"
 					data-move="up"
 					disabled={i === 0}
-					aria-label="Move {item.title} up"
+					aria-label="Move {item.show.name} up"
 					onclick={() => move(i, -1)}
 				>
 					<ChevronUp class="size-5" />
@@ -189,7 +197,7 @@
 					class="icon-btn"
 					data-move="down"
 					disabled={i === items.length - 1}
-					aria-label="Move {item.title} down"
+					aria-label="Move {item.show.name} down"
 					onclick={() => move(i, 1)}
 				>
 					<ChevronDown class="size-5" />
@@ -197,7 +205,7 @@
 
 				<form method="POST" action="?/remove" use:enhance>
 					<input type="hidden" name="id" value={item.id} />
-					<button class="icon-btn hover:text-red-300" aria-label="Remove {item.title}">
+					<button class="icon-btn hover:text-red-300" aria-label="Remove {item.show.name}">
 						<Trash class="size-4" />
 					</button>
 				</form>
