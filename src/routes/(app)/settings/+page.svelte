@@ -1,6 +1,23 @@
 <script lang="ts">
 	import { enhance } from "$app/forms";
 	import Field from "#lib/components/Field.svelte";
+	import { toast } from "#lib/toast.svelte.js";
+
+	let savingPrefs = $state(false);
+
+	const previousOptions = [
+		{
+			value: "ask",
+			label: "Ask me each time",
+			hint: "Choose whether to also mark earlier episodes."
+		},
+		{
+			value: "all",
+			label: "Mark earlier episodes too",
+			hint: "Skipping ahead checks off everything before it."
+		},
+		{ value: "single", label: "Only that episode", hint: "Never touch other episodes." }
+	] as const;
 
 	let { data, form } = $props();
 	let submitting = $state(false);
@@ -13,6 +30,7 @@
 
 <form
 	method="POST"
+	action="?/profile"
 	class="card mt-6 max-w-xl space-y-4"
 	use:enhance={() => {
 		submitting = true;
@@ -57,4 +75,51 @@
 	<button class="btn btn-primary" disabled={submitting}
 		>{submitting ? "Saving…" : "Save changes"}</button
 	>
+</form>
+
+<h2 class="mt-10 text-2xl font-semibold tracking-tight">Episode tracking</h2>
+
+<form
+	method="POST"
+	action="?/preferences"
+	class="card mt-6 max-w-xl space-y-4"
+	use:enhance={() => {
+		savingPrefs = true;
+		return async ({ result, update }) => {
+			await update({ reset: false });
+			savingPrefs = false;
+			if (result.type === "success") toast.show("Preference saved");
+		};
+	}}
+>
+	<fieldset class="space-y-2">
+		<legend class="mb-1.5 text-sm font-medium text-zinc-300">
+			When I mark an episode as watched
+		</legend>
+		{#each previousOptions as o (o.value)}
+			<label
+				class="flex cursor-pointer items-start gap-3 rounded-xl border border-white/10 p-3 has-checked:border-brand-400/60 has-checked:bg-brand-500/10"
+			>
+				<input
+					type="radio"
+					name="previous_episodes"
+					value={o.value}
+					checked={data.previousEpisodes === o.value}
+					class="mt-1 border-white/20 bg-zinc-900 text-brand-500 focus:ring-brand-400/40"
+				/>
+				<span>
+					<span class="block text-sm font-medium">{o.label}</span>
+					<span class="block text-xs text-zinc-500">{o.hint}</span>
+				</span>
+			</label>
+		{/each}
+	</fieldset>
+
+	{#if form?.prefsMessage}
+		<p class="text-sm text-red-400" role="alert">{form.prefsMessage}</p>
+	{/if}
+
+	<button class="btn btn-primary" disabled={savingPrefs}>
+		{savingPrefs ? "Saving…" : "Save preference"}
+	</button>
 </form>

@@ -8,10 +8,18 @@
 	import { ChevronDown, ChevronUp, GripVertical, Trash } from "@lucide/svelte";
 	import Poster from "#lib/components/Poster.svelte";
 	import { resolve } from "$app/paths";
+	import ProgressBadge from "#lib/components/ProgressBadge.svelte";
 
 	type Item = {
 		id: string;
-		show: { id: string; name: string; poster_path: string | null; first_air_date: string | null };
+		show: {
+			id: string;
+			name: string;
+			poster_path: string | null;
+			first_air_date: string | null;
+			status: string | null;
+		};
+		progress: { aired: number; watched: number } | null;
 	};
 
 	let { items: serverItems }: { items: Item[] } = $props();
@@ -177,12 +185,22 @@
 					class="w-9 shrink-0 sm:w-11"
 					sizes="(min-width: 640px) 44px, 36px"
 				/>
-				<a
-					href={resolve("/(app)/shows/[id=uuid]", { id: item.show.id })}
-					class="line-clamp-2 min-w-0 flex-1 text-sm leading-snug font-medium wrap-break-word hover:text-brand-300 sm:text-base"
-				>
-					{item.show.name}
-				</a>
+				<div class="min-w-0 flex-1">
+					<a
+						href={resolve("/(app)/shows/[id=uuid]", { id: item.show.id })}
+						class="line-clamp-2 text-sm leading-snug font-medium wrap-break-word hover:text-brand-300 sm:text-base"
+					>
+						{item.show.name}
+					</a>
+					{#if item.progress}
+						<ProgressBadge
+							class="mt-1"
+							aired={item.progress.aired}
+							watched={item.progress.watched}
+							status={item.show.status}
+						/>
+					{/if}
+				</div>
 
 				<button
 					type="button"

@@ -22,7 +22,11 @@
 
 {#key data.list.id}
 	<div class="mt-6">
-		<ShowSearch existing={data.list.items.map((i) => i.show.tmdb_id)} error={form?.addError} />
+		<ShowSearch
+			existing={data.list.items.map((i) => i.show.tmdb_id)}
+			error={form?.addError}
+			listName={data.list.name}
+		/>
 	</div>
 
 	<div class="mt-6">

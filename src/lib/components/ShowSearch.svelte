@@ -4,8 +4,13 @@
 	import { Check, Plus, Search } from "@lucide/svelte";
 	import Poster from "#lib/components/Poster.svelte";
 	import type { ShowSearchResult } from "#lib/types.js";
+	import { toast } from "#lib/toast.svelte.js";
 
-	let { existing = [], error }: { existing?: number[]; error?: string } = $props();
+	let {
+		existing = [],
+		error,
+		listName
+	}: { existing?: number[]; error?: string; listName?: string } = $props();
 
 	let inputEl = $state<HTMLInputElement>();
 
@@ -100,13 +105,13 @@
 							method="POST"
 							action="?/add"
 							use:enhance={() => {
+								const { name } = r;
 								pendingId = r.tmdb_id;
 								return async ({ result, update }) => {
 									await update({ reset: false });
 									pendingId = null;
-									// Close on success only. On failure (already in list, TMDB down) keep the
-									// results open so the error is visible and the user can retry.
 									if (result.type === "success") {
+										toast.show(listName ? `Added “${name}” to ${listName}` : `Added “${name}”`);
 										query = "";
 										inputEl?.focus();
 									}

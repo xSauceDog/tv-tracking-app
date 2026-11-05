@@ -238,6 +238,35 @@ export type Database = {
         }
         Relationships: []
       }
+      user_settings: {
+        Row: {
+          created_at: string
+          previous_episodes: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          previous_episodes?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          previous_episodes?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_settings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       watched_episodes: {
         Row: {
           episode_id: string
@@ -276,6 +305,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      mark_episode_watched: {
+        Args: { p_episode_id: string; p_include_previous?: boolean }
+        Returns: undefined
+      }
       reorder_list_items: {
         Args: { p_item_ids: string[]; p_list_id: string }
         Returns: undefined
@@ -292,6 +325,19 @@ export type Database = {
       set_season_watched: {
         Args: { p_season: number; p_show_id: string; p_watched: boolean }
         Returns: undefined
+      }
+      show_status: {
+        Args: { p_show_ids: string[] }
+        Returns: {
+          aired: number
+          days_until: number
+          next_air_date: string
+          next_episode: number
+          next_name: string
+          next_season: number
+          show_id: string
+          watched: number
+        }[]
       }
     }
     Enums: {

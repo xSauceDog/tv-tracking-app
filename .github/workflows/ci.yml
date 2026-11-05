@@ -6,6 +6,7 @@ env:
   PUBLIC_SUPABASE_PUBLISHABLE_KEY: placeholder
   SUPABASE_SECRET_KEY: placeholder
   TMDB_READ_TOKEN: placeholder
+  CRON_SECRET: placeholder
 
 jobs:
   check:

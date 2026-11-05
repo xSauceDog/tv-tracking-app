@@ -1,10 +1,16 @@
 import { fail } from "@sveltejs/kit";
 import { profileSchema } from "#lib/schemas/auth.js";
+import { settingsSchema } from "#lib/schemas/settings.js";
+import { getPreviousEpisodes, savePreviousEpisodes } from "#lib/server/settings.js";
 import { fieldErrors, type FieldErrors } from "#lib/utils/forms.js";
-import type { Actions } from "./$types";
+import type { Actions, PageServerLoad } from "./$types";
+
+export const load: PageServerLoad = async ({ locals: { supabase } }) => ({
+	previousEpisodes: await getPreviousEpisodes(supabase)
+});
 
 export const actions: Actions = {
-	default: async ({ request, locals: { supabase, user } }) => {
+	profile: async ({ request, locals: { supabase, user } }) => {
 		const form = Object.fromEntries(await request.formData());
 		const values = {
 			username: String(form.username ?? ""),
@@ -34,5 +40,15 @@ export const actions: Actions = {
 			});
 		}
 		return { success: true };
+	},
+
+	preferences: async ({ request, locals: { supabase } }) => {
+		const parsed = settingsSchema.safeParse(Object.fromEntries(await request.formData()));
+		if (!parsed.success) return fail(400, { prefsMessage: "Pick one of the options." });
+
+		const { error } = await savePreviousEpisodes(supabase, parsed.data.previous_episodes);
+		if (error) return fail(500, { prefsMessage: "Could not save your preference." });
+
+		return { prefsSaved: true };
 	}
 };

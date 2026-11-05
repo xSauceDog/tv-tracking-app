@@ -2,6 +2,7 @@
 	import { resolve } from "$app/paths";
 	import { page } from "$app/state";
 	import { House, ListOrdered, Settings, Tv } from "@lucide/svelte";
+	import Toaster from "#lib/components/Toaster.svelte";
 
 	let { children } = $props();
 
@@ -57,4 +58,5 @@
 			</a>
 		{/each}
 	</nav>
+	<Toaster />
 </div>

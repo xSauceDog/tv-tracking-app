@@ -3,9 +3,13 @@
 	import { resolve } from "$app/paths";
 	import { Check, ChevronLeft } from "@lucide/svelte";
 	import Poster from "#lib/components/Poster.svelte";
+	import { toast } from "#lib/toast.svelte.js";
 	import { formatAirDate } from "#lib/utils/dates.js";
+	import ProgressBadge from "#lib/components/ProgressBadge.svelte";
 
 	let { data, form } = $props();
+
+	type Episode = (typeof data.episodes)[number];
 
 	// Optimistic overrides keyed by episode id; cleared once the server has answered.
 	let overrides = $state<Record<string, boolean>>({});
@@ -25,6 +29,29 @@
 	const airedInSeason = $derived(data.episodes.filter((e) => e.aired).length);
 	const watchedInSeason = $derived(data.episodes.filter(isWatched).length);
 	const seasonDone = $derived(airedInSeason > 0 && watchedInSeason >= airedInSeason);
+
+	// ---- "mark earlier episodes too?" ----
+	let dialogEl = $state<HTMLDialogElement>();
+	let promptForm = $state<HTMLFormElement>();
+	let previousPrompt = $state.raw<{ episode: Episode; count: number } | null>(null);
+
+	// Aired-but-unwatched episodes in earlier seasons (server data)...
+	const earlierSeasons = $derived(
+		data.seasons
+			.filter((s) => s.season_number < (data.selected ?? 0))
+			.reduce((n, s) => n + Math.max(0, s.aired - s.watched), 0)
+	);
+	// ...plus those earlier in the season on screen.
+	const earlierInSeason = (ep: Episode) =>
+		data.episodes.filter((e) => e.episode_number < ep.episode_number && e.aired && !isWatched(e));
+	const unwatchedBefore = (ep: Episode) => earlierSeasons + earlierInSeason(ep).length;
+
+	/** Optimistically tick the episode (and earlier ones on screen); returns ids to clear afterwards. */
+	function markOptimistically(ep: Episode, includePrevious: boolean) {
+		const ids = [ep.id, ...(includePrevious ? earlierInSeason(ep).map((e) => e.id) : [])];
+		for (const id of ids) overrides[id] = true;
+		return ids;
+	}
 </script>
 
 <svelte:head><title>{data.show.name} · Rankr</title></svelte:head>
@@ -48,6 +75,12 @@
 			<p class="mt-1 text-sm text-zinc-400">
 				{[year, data.show.status].filter(Boolean).join(" · ")}
 			</p>
+			<ProgressBadge
+				class="mt-2"
+				aired={totals.aired}
+				watched={totals.watched}
+				status={data.show.status}
+			/>
 			{#if data.show.overview}
 				<p class="mt-3 line-clamp-4 text-sm text-zinc-300">{data.show.overview}</p>
 			{/if}
@@ -127,12 +160,34 @@
 					<form
 						method="POST"
 						action="?/toggle"
-						use:enhance={({ formData }) => {
-							const id = String(formData.get("episode_id"));
-							overrides[id] = formData.get("watched") === "true";
+						use:enhance={({ formData, cancel }) => {
+							const marking = formData.get("watched") === "true";
+
+							// Unmarking never prompts.
+							if (!marking) {
+								overrides[ep.id] = false;
+								return async ({ update }) => {
+									await update({ reset: false });
+									delete overrides[ep.id];
+								};
+							}
+
+							const count = unwatchedBefore(ep);
+							if (count > 0 && data.previousEpisodes === "ask") {
+								cancel();
+								previousPrompt = { episode: ep, count };
+								promptForm?.reset();
+								dialogEl?.showModal();
+								dialogEl?.querySelector<HTMLElement>("[data-initial-focus]")?.focus();
+								return;
+							}
+
+							const include = count > 0 && data.previousEpisodes === "all";
+							if (include) formData.set("include_previous", "true");
+							const ids = markOptimistically(ep, include);
 							return async ({ update }) => {
 								await update({ reset: false });
-								delete overrides[id];
+								for (const id of ids) delete overrides[id];
 							};
 						}}
 					>
@@ -174,3 +229,73 @@
 		</ul>
 	{/if}
 </div>
+
+<dialog
+	bind:this={dialogEl}
+	onclose={() => (previousPrompt = null)}
+	aria-labelledby="previous-title"
+	class="mt-auto mb-0 w-full max-w-none rounded-t-2xl border border-white/10 bg-zinc-900 p-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] text-zinc-100 shadow-2xl backdrop:bg-black/60 backdrop:backdrop-blur-sm sm:m-auto sm:max-w-md sm:rounded-2xl sm:pb-6"
+>
+	<form
+		bind:this={promptForm}
+		method="POST"
+		action="?/toggle"
+		use:enhance={({ formData, cancel }) => {
+			const target = previousPrompt?.episode;
+			if (!target) return cancel();
+
+			const include = formData.get("include_previous") === "true";
+			const remember = formData.has("remember");
+			const ids = markOptimistically(target, include);
+			dialogEl?.close();
+
+			return async ({ result, update }) => {
+				await update({ reset: false });
+				for (const id of ids) delete overrides[id];
+				if (result.type === "success" && remember) {
+					toast.show("Preference saved. You can change it in Settings.");
+				}
+			};
+		}}
+	>
+		<input type="hidden" name="episode_id" value={previousPrompt?.episode.id ?? ""} />
+		<input type="hidden" name="watched" value="true" />
+
+		<h2 id="previous-title" class="text-lg font-semibold">Mark earlier episodes too?</h2>
+		<p class="mt-2 text-sm text-zinc-400">
+			You're marking
+			<strong class="text-zinc-200">
+				E{previousPrompt?.episode.episode_number}
+				{previousPrompt?.episode.name}
+			</strong>
+			as watched. {previousPrompt?.count}
+			earlier {previousPrompt?.count === 1 ? "episode isn't" : "episodes aren't"} marked yet.
+		</p>
+
+		<label class="mt-4 flex items-start gap-2 text-sm text-zinc-300">
+			<input
+				type="checkbox"
+				name="remember"
+				class="mt-0.5 rounded border-white/20 bg-zinc-900 text-brand-500 focus:ring-brand-400/40"
+			/>
+			<span>
+				Don't ask again
+				<span class="block text-xs text-zinc-500">
+					Uses whichever option you pick below. Change it anytime in Settings.
+				</span>
+			</span>
+		</label>
+
+		<div class="mt-5 flex flex-col gap-2">
+			<button name="include_previous" value="true" class="btn btn-primary">
+				Mark {previousPrompt?.count} earlier {previousPrompt?.count === 1 ? "episode" : "episodes"} too
+			</button>
+			<button name="include_previous" value="false" class="btn btn-ghost" data-initial-focus>
+				Just this episode
+			</button>
+			<button type="button" class="btn h-9 text-zinc-400" onclick={() => dialogEl?.close()}>
+				Cancel
+			</button>
+		</div>
+	</form>
+</dialog>

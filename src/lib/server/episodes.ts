@@ -1,14 +1,14 @@
 import type { TablesInsert } from "#lib/database.types.js";
+import { FINISHED_STATUSES, isFinished } from "#lib/utils/progress.js";
 import { supabaseAdmin } from "./supabase-admin.js";
 import { getSeasonEpisodes, getShowDetail } from "./tmdb.js";
 
 const STALE_AFTER_MS = 12 * 60 * 60 * 1000;
-const FINISHED = new Set(["Ended", "Canceled"]);
 
 /** Finished shows sync once; shows still airing re-sync when the cache is over 12 hours old. */
 export function needsSync(show: { status: string | null; episodes_synced_at: string | null }) {
 	if (!show.episodes_synced_at) return true;
-	if (show.status && FINISHED.has(show.status)) return false;
+	if (isFinished(show.status)) return false;
 	return Date.now() - Date.parse(show.episodes_synced_at) > STALE_AFTER_MS;
 }
 
@@ -41,4 +41,47 @@ export async function syncEpisodes(show: { id: string; tmdb_id: number }) {
 		.update({ status: detail.status, episodes_synced_at: new Date().toISOString() })
 		.eq("id", show.id);
 	if (error) throw error;
+}
+
+/** Used right after a show is added to a list, so its badge and schedule work immediately. */
+export async function ensureEpisodes(showId: string) {
+	const { data: show, error } = await supabaseAdmin
+		.from("shows")
+		.select("id, tmdb_id, status, episodes_synced_at")
+		.eq("id", showId)
+		.single();
+	if (error) throw error;
+	if (needsSync(show)) await syncEpisodes(show);
+}
+
+/** Cron job: refresh shows that are on at least one list and whose cache is missing or stale. */
+export async function syncStaleShows(limit = 10, budgetMs = 25_000) {
+	const cutoff = new Date(Date.now() - STALE_AFTER_MS).toISOString();
+	const finished = FINISHED_STATUSES.join(",");
+
+	const { data, error } = await supabaseAdmin
+		.from("shows")
+		.select("id, tmdb_id, list_items!inner(id)")
+		.or(
+			`episodes_synced_at.is.null,and(episodes_synced_at.lt.${cutoff},or(status.is.null,status.not.in.(${finished})))`
+		)
+		.order("episodes_synced_at", { ascending: true, nullsFirst: true })
+		.limit(limit)
+		.limit(1, { referencedTable: "list_items" });
+	if (error) throw error;
+
+	const deadline = Date.now() + budgetMs;
+	let synced = 0;
+	let failed = 0;
+	for (const show of data) {
+		if (Date.now() > deadline) break;
+		try {
+			await syncEpisodes(show);
+			synced++;
+		} catch (e) {
+			failed++;
+			console.error("cron episode sync failed", show.tmdb_id, e);
+		}
+	}
+	return { synced, failed };
 }

@@ -5,14 +5,13 @@ import type { Actions, PageServerLoad } from "./$types";
 import { addShowSchema } from "#lib/schemas/shows.js";
 import { ensureShow } from "#lib/server/shows.js";
 import { listSchema, removeItemSchema, reorderSchema } from "#lib/schemas/lists.js";
+import { ensureEpisodes } from "#lib/server/episodes.js";
 
 export const load: PageServerLoad = async ({ params, locals: { supabase, user } }) => {
-	// One round trip: the list plus its items, already in rank order.
-	// Scoped to the owner: this page is for editing; public viewing will be a separate route.
 	const { data: list, error: dbError } = await supabase
 		.from("lists")
 		.select(
-			"id, name, is_public, items:list_items(id, position, show:shows(id, tmdb_id, name, poster_path, first_air_date))"
+			"id, name, is_public, items:list_items(id, position, show:shows(id, tmdb_id, name, poster_path, first_air_date, status))"
 		)
 		.eq("id", params.id)
 		.eq("user_id", user!.id)
@@ -21,7 +20,24 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, user } 
 
 	if (dbError) error(500, "Could not load this list");
 	if (!list) error(404, "List not found");
-	return { list };
+
+	// Badges are decorative, so a failure here shouldn't block editing the list.
+	const showIds = list.items.map((i) => i.show.id);
+	const { data: rows, error: statusError } = showIds.length
+		? await supabase.rpc("show_status", { p_show_ids: showIds })
+		: { data: [], error: null };
+	if (statusError) console.error("show_status failed", statusError);
+
+	const progress = new Map(
+		(rows ?? []).map((r) => [r.show_id, { aired: r.aired, watched: r.watched }] as const)
+	);
+
+	return {
+		list: {
+			...list,
+			items: list.items.map((item) => ({ ...item, progress: progress.get(item.show.id) ?? null }))
+		}
+	};
 };
 
 export const actions: Actions = {
@@ -45,6 +61,10 @@ export const actions: Actions = {
 		if (dbError?.code === "23505")
 			return fail(409, { addError: "That show is already in this list." });
 		if (dbError) return fail(500, { addError: "Could not add that show." });
+
+		// Best-effort: cache episodes now so the new show gets a badge and a schedule entry
+		// immediately. If TMDB hiccups, the cron job and the show page retry later.
+		await ensureEpisodes(showId).catch((e) => console.error("episode sync failed", e));
 
 		return { added: true };
 	},
