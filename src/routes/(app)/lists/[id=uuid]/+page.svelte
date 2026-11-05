@@ -20,15 +20,15 @@
 	<p class="mt-4 rounded-xl bg-red-500/10 p-3 text-sm text-red-300" role="alert">{form.message}</p>
 {/if}
 
-<div class="mt-6">
-	<ShowSearch existing={data.list.items.map((i) => i.show.tmdb_id)} error={form?.addError} />
-</div>
+{#key data.list.id}
+	<div class="mt-6">
+		<ShowSearch existing={data.list.items.map((i) => i.show.tmdb_id)} error={form?.addError} />
+	</div>
 
-<div class="mt-6">
-	{#key data.list.id}
+	<div class="mt-6">
 		<RankedList items={data.list.items} />
-	{/key}
-</div>
+	</div>
+{/key}
 
 <details class="card mt-10">
 	<summary class="cursor-pointer text-sm font-medium text-zinc-300">List settings</summary>

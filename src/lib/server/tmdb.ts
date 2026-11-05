@@ -79,3 +79,29 @@ export async function getShow(tmdbId: number): Promise<TablesInsert<"shows"> | n
 		status: s.status
 	};
 }
+
+const showDetailSchema = showSchema.extend({
+	seasons: z.array(z.object({ season_number: z.number(), episode_count: z.number() }))
+});
+
+const seasonSchema = z.object({
+	episodes: z.array(
+		z.object({
+			season_number: z.number(),
+			episode_number: z.number(),
+			name: z.string(),
+			overview: nullable,
+			air_date: nullable,
+			runtime: z
+				.number()
+				.nullish()
+				.transform((v) => v ?? null),
+			still_path: nullable
+		})
+	)
+});
+
+export const getShowDetail = (tmdbId: number) => request(`/tv/${tmdbId}`, showDetailSchema);
+
+export const getSeasonEpisodes = (tmdbId: number, season: number) =>
+	request(`/tv/${tmdbId}/season/${season}`, seasonSchema);

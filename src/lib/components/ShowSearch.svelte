@@ -7,6 +7,8 @@
 
 	let { existing = [], error }: { existing?: number[]; error?: string } = $props();
 
+	let inputEl = $state<HTMLInputElement>();
+
 	let query = $state("");
 	let results = $state<ShowSearchResult[]>([]);
 	let status = $state<"idle" | "loading" | "error">("idle");
@@ -53,6 +55,7 @@
 			class="pointer-events-none absolute top-1/2 left-3.5 size-4 -translate-y-1/2 text-zinc-500"
 		/>
 		<input
+			bind:this={inputEl}
 			type="search"
 			bind:value={query}
 			aria-label="Search for a show or anime"
@@ -98,9 +101,15 @@
 							action="?/add"
 							use:enhance={() => {
 								pendingId = r.tmdb_id;
-								return async ({ update }) => {
+								return async ({ result, update }) => {
 									await update({ reset: false });
 									pendingId = null;
+									// Close on success only. On failure (already in list, TMDB down) keep the
+									// results open so the error is visible and the user can retry.
+									if (result.type === "success") {
+										query = "";
+										inputEl?.focus();
+									}
 								};
 							}}
 						>

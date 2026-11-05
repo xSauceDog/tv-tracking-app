@@ -39,6 +39,56 @@ export type Database = {
   }
   public: {
     Tables: {
+      episodes: {
+        Row: {
+          air_date: string | null
+          created_at: string
+          episode_number: number
+          id: string
+          name: string
+          overview: string | null
+          runtime: number | null
+          season_number: number
+          show_id: string
+          still_path: string | null
+          updated_at: string
+        }
+        Insert: {
+          air_date?: string | null
+          created_at?: string
+          episode_number: number
+          id?: string
+          name: string
+          overview?: string | null
+          runtime?: number | null
+          season_number: number
+          show_id: string
+          still_path?: string | null
+          updated_at?: string
+        }
+        Update: {
+          air_date?: string | null
+          created_at?: string
+          episode_number?: number
+          id?: string
+          name?: string
+          overview?: string | null
+          runtime?: number | null
+          season_number?: number
+          show_id?: string
+          still_path?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "episodes_show_id_fkey"
+            columns: ["show_id"]
+            isOneToOne: false
+            referencedRelation: "shows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       list_items: {
         Row: {
           created_at: string
@@ -147,6 +197,7 @@ export type Database = {
         Row: {
           backdrop_path: string | null
           created_at: string
+          episodes_synced_at: string | null
           first_air_date: string | null
           id: string
           name: string
@@ -160,6 +211,7 @@ export type Database = {
         Insert: {
           backdrop_path?: string | null
           created_at?: string
+          episodes_synced_at?: string | null
           first_air_date?: string | null
           id?: string
           name: string
@@ -173,6 +225,7 @@ export type Database = {
         Update: {
           backdrop_path?: string | null
           created_at?: string
+          episodes_synced_at?: string | null
           first_air_date?: string | null
           id?: string
           name?: string
@@ -185,6 +238,39 @@ export type Database = {
         }
         Relationships: []
       }
+      watched_episodes: {
+        Row: {
+          episode_id: string
+          user_id: string
+          watched_at: string
+        }
+        Insert: {
+          episode_id: string
+          user_id?: string
+          watched_at?: string
+        }
+        Update: {
+          episode_id?: string
+          user_id?: string
+          watched_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "watched_episodes_episode_id_fkey"
+            columns: ["episode_id"]
+            isOneToOne: false
+            referencedRelation: "episodes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "watched_episodes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -192,6 +278,19 @@ export type Database = {
     Functions: {
       reorder_list_items: {
         Args: { p_item_ids: string[]; p_list_id: string }
+        Returns: undefined
+      }
+      season_progress: {
+        Args: { p_show_id: string }
+        Returns: {
+          aired: number
+          season_number: number
+          total: number
+          watched: number
+        }[]
+      }
+      set_season_watched: {
+        Args: { p_season: number; p_show_id: string; p_watched: boolean }
         Returns: undefined
       }
     }

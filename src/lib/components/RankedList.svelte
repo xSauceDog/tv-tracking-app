@@ -7,10 +7,11 @@
 	import { dragHandle, dragHandleZone, type DndEvent } from "svelte-dnd-action";
 	import { ChevronDown, ChevronUp, GripVertical, Trash } from "@lucide/svelte";
 	import Poster from "#lib/components/Poster.svelte";
+	import { resolve } from "$app/paths";
 
 	type Item = {
 		id: string;
-		show: { name: string; poster_path: string | null; first_air_date: string | null };
+		show: { id: string; name: string; poster_path: string | null; first_air_date: string | null };
 	};
 
 	let { items: serverItems }: { items: Item[] } = $props();
@@ -176,11 +177,12 @@
 					class="w-9 shrink-0 sm:w-11"
 					sizes="(min-width: 640px) 44px, 36px"
 				/>
-				<p
-					class="line-clamp-2 min-w-0 flex-1 text-sm leading-snug font-medium wrap-break-word sm:text-base"
+				<a
+					href={resolve("/(app)/shows/[id=uuid]", { id: item.show.id })}
+					class="line-clamp-2 min-w-0 flex-1 text-sm leading-snug font-medium wrap-break-word hover:text-brand-300 sm:text-base"
 				>
 					{item.show.name}
-				</p>
+				</a>
 
 				<button
 					type="button"
