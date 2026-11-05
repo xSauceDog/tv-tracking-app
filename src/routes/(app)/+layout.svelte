@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { resolve } from "$app/paths";
 	import { page } from "$app/state";
-	import { House, ListOrdered, Settings, Tv } from "@lucide/svelte";
+	import { House, Library, ListOrdered, Settings, Tv } from "@lucide/svelte";
 	import Toaster from "#lib/components/Toaster.svelte";
 
 	let { children } = $props();
@@ -9,6 +9,7 @@
 	const links = [
 		{ route: "/(app)/dashboard", label: "Home", icon: House },
 		{ route: "/(app)/lists", label: "Lists", icon: ListOrdered },
+		{ route: "/(app)/shows", label: "Shows", icon: Library },
 		{ route: "/(app)/settings", label: "Settings", icon: Settings }
 	] as const;
 	const isActive = (route: string) => page.route.id?.startsWith(route) ?? false;
@@ -44,7 +45,7 @@
 	</main>
 
 	<nav
-		class="fixed inset-x-0 bottom-0 z-30 grid grid-cols-3 border-t border-white/10 bg-zinc-950/80 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden"
+		class="fixed inset-x-0 bottom-0 z-30 grid grid-cols-4 border-t border-white/10 bg-zinc-950/80 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden"
 		aria-label="Main"
 	>
 		{#each links as link (link.route)}

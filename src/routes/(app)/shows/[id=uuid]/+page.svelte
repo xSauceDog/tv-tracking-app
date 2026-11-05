@@ -148,7 +148,11 @@
 				<input type="hidden" name="season" value={data.selected} />
 				<input type="hidden" name="watched" value={String(!seasonDone)} />
 				<button class="btn btn-ghost h-9 px-3" disabled={airedInSeason === 0}>
-					{seasonDone ? "Unmark season" : "Mark season watched"}
+					{seasonDone
+						? "Unmark season"
+						: data.selected > 1
+							? `Mark seasons 1–${data.selected} watched`
+							: "Mark season watched"}
 				</button>
 			</form>
 		</div>

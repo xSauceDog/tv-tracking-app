@@ -267,6 +267,39 @@ export type Database = {
           },
         ]
       }
+      user_shows: {
+        Row: {
+          added_at: string
+          show_id: string
+          user_id: string
+        }
+        Insert: {
+          added_at?: string
+          show_id: string
+          user_id?: string
+        }
+        Update: {
+          added_at?: string
+          show_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_shows_show_id_fkey"
+            columns: ["show_id"]
+            isOneToOne: false
+            referencedRelation: "shows"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_shows_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       watched_episodes: {
         Row: {
           episode_id: string
