@@ -20,7 +20,6 @@ export const registerSchema = z.object({
 });
 
 export const profileSchema = z.object({
-	username,
 	display_name: z
 		.string()
 		.trim()

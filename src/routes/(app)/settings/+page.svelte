@@ -37,7 +37,24 @@
 	</a>
 {/if}
 
-<h2 class="mt-8 text-2xl font-semibold tracking-tight">Profile</h2>
+<h2 class="mt-8 text-2xl font-semibold tracking-tight">Account</h2>
+
+<dl class="card mt-6 max-w-xl space-y-5">
+	<div>
+		<dt class="text-sm font-medium text-zinc-300">Email</dt>
+		<dd class="mt-1 break-all text-zinc-100">{data.user?.email}</dd>
+		<dd class="mt-1 text-xs text-zinc-500">This is what you use to sign in.</dd>
+	</div>
+	<div>
+		<dt class="text-sm font-medium text-zinc-300">Username</dt>
+		<dd class="mt-1 text-zinc-100">@{data.profile?.username}</dd>
+		<dd class="mt-1 text-xs text-zinc-500">
+			Usernames can't be changed because they're part of your profile link.
+		</dd>
+	</div>
+</dl>
+
+<h2 class="mt-10 text-2xl font-semibold tracking-tight">Profile</h2>
 
 <form
 	method="POST"

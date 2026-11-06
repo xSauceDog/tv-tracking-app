@@ -13,7 +13,6 @@ export const actions: Actions = {
 	profile: async ({ request, locals: { supabase, user } }) => {
 		const form = Object.fromEntries(await request.formData());
 		const values = {
-			username: String(form.username ?? ""),
 			display_name: String(form.display_name ?? ""),
 			bio: String(form.bio ?? "")
 		};
@@ -24,15 +23,7 @@ export const actions: Actions = {
 		}
 
 		const { error } = await supabase.from("profiles").update(parsed.data).eq("id", user!.id);
-
 		if (error) {
-			if (error.code === "23505") {
-				return fail(400, {
-					values,
-					errors: { username: ["That username is taken."] } as FieldErrors,
-					message: undefined
-				});
-			}
 			return fail(500, {
 				values,
 				errors: {} as FieldErrors,
