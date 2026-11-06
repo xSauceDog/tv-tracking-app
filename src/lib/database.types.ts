@@ -342,6 +342,15 @@ export type Database = {
         Args: { p_episode_id: string; p_include_previous?: boolean }
         Returns: undefined
       }
+      profile_stats: {
+        Args: { p_user_id: string }
+        Returns: {
+          episodes_watched: number
+          minutes_watched: number
+          shows_completed: number
+          shows_tracked: number
+        }[]
+      }
       reorder_list_items: {
         Args: { p_item_ids: string[]; p_list_id: string }
         Returns: undefined

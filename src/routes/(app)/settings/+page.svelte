@@ -2,6 +2,7 @@
 	import { enhance } from "$app/forms";
 	import Field from "#lib/components/Field.svelte";
 	import { toast } from "#lib/toast.svelte.js";
+	import { resolve } from "$app/paths";
 
 	let savingPrefs = $state(false);
 
@@ -26,7 +27,17 @@
 
 <svelte:head><title>Settings · Rankr</title></svelte:head>
 
-<h1 class="text-3xl font-semibold tracking-tight">Profile</h1>
+<h1 class="text-3xl font-semibold tracking-tight">Settings</h1>
+{#if data.profile}
+	<a
+		href={resolve("/(app)/@[username=username]", { username: data.profile.username })}
+		class="mt-1 inline-block text-sm text-brand-300 hover:underline"
+	>
+		View your profile →
+	</a>
+{/if}
+
+<h2 class="mt-8 text-2xl font-semibold tracking-tight">Profile</h2>
 
 <form
 	method="POST"
