@@ -1,10 +1,21 @@
 <script lang="ts">
 	import { resolve } from "$app/paths";
-	import { CalendarDays, CircleCheck, Clock, Eye, Library, Settings } from "@lucide/svelte";
 	import Avatar from "#lib/components/Avatar.svelte";
 	import { formatMonthYear } from "#lib/utils/dates.js";
 	import { formatNumber, watchTime } from "#lib/utils/stats.js";
 	import { avatarUrl } from "#lib/utils/images.js";
+	import {
+		CalendarDays,
+		ChevronRight,
+		CircleCheck,
+		Clock,
+		Eye,
+		Library,
+		ListOrdered,
+		Lock,
+		Plus,
+		Settings
+	} from "@lucide/svelte";
 
 	let { data } = $props();
 
@@ -83,6 +94,62 @@
 				{data.isOwner
 					? "Mark episodes as watched and your stats will fill in here."
 					: "No episodes watched yet."}
+			</p>
+		{/if}
+	</section>
+	<section class="mt-8" aria-labelledby="lists-heading">
+		<div class="flex items-center justify-between gap-3">
+			<h2 id="lists-heading" class="flex items-baseline gap-2 text-lg font-semibold">
+				Lists
+				<span class="text-sm font-normal text-zinc-500 tabular-nums">{data.lists.length}</span>
+			</h2>
+			{#if data.isOwner}
+				<a href={resolve("/(app)/lists/new")} class="btn btn-ghost h-9 px-3">
+					<Plus class="size-4" /> New list
+				</a>
+			{/if}
+		</div>
+
+		{#if data.lists.length}
+			<ul class="mt-3 space-y-2">
+				{#each data.lists as list (list.id)}
+					<li>
+						<a
+							href={resolve("/(app)/@[username=username]/lists/[id=uuid]", {
+								username: data.member.username,
+								id: list.id
+							})}
+							class="flex items-center gap-3 rounded-xl border border-white/10 bg-zinc-900/80 p-3 transition hover:border-white/25"
+						>
+							<span
+								class="grid size-10 shrink-0 place-items-center rounded-lg bg-brand-500/15 text-brand-300"
+							>
+								<ListOrdered class="size-5" />
+							</span>
+							<div class="min-w-0 flex-1">
+								<p class="truncate text-sm font-medium">{list.name}</p>
+								<p class="text-xs text-zinc-500">
+									{list.count}
+									{list.count === 1 ? "show" : "shows"}
+								</p>
+							</div>
+							{#if !list.is_public}
+								<span
+									class="inline-flex shrink-0 items-center gap-1 rounded-full bg-white/5 px-2 py-0.5 text-xs text-zinc-400 ring-1 ring-white/10 ring-inset"
+								>
+									<Lock class="size-3" /> Private
+								</span>
+							{/if}
+							<ChevronRight class="size-4 shrink-0 text-zinc-600" />
+						</a>
+					</li>
+				{/each}
+			</ul>
+		{:else}
+			<p
+				class="mt-3 rounded-xl border border-dashed border-white/10 p-6 text-center text-sm text-zinc-500"
+			>
+				{data.isOwner ? "You haven't created any lists yet." : "No public lists yet."}
 			</p>
 		{/if}
 	</section>

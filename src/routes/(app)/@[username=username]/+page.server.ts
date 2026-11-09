@@ -17,10 +17,20 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, user } 
 	if (profileError) error(500, "Could not load this profile");
 	if (!member) error(404, "Nobody goes by that username");
 
-	const { data: stats, error: statsError } = await supabase
-		.rpc("profile_stats", { p_user_id: member.id })
-		.single();
+	// RLS returns public lists for everyone, plus private ones when you're the owner.
+	const [{ data: stats, error: statsError }, { data: rawLists, error: listsError }] =
+		await Promise.all([
+			supabase.rpc("profile_stats", { p_user_id: member.id }).single(),
+			supabase
+				.from("lists")
+				.select("id, name, is_public, items:list_items(count)")
+				.eq("user_id", member.id)
+				.order("created_at")
+		]);
 	if (statsError) error(500, "Could not load this profile's stats");
+	if (listsError) error(500, "Could not load this profile's lists");
 
-	return { member, stats, isOwner: member.id === user!.id };
+	const lists = rawLists.map(({ items, ...list }) => ({ ...list, count: items[0]?.count ?? 0 }));
+
+	return { member, stats, lists, isOwner: member.id === user!.id };
 };

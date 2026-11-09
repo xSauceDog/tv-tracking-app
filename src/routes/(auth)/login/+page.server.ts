@@ -12,7 +12,7 @@ export const actions: Actions = {
 
 		const parsed = loginSchema.safeParse(form);
 		if (!parsed.success) {
-			return fail(400, { email, errors: fieldErrors(parsed.error) });
+			return fail(400, { email, errors: fieldErrors(parsed.error), message: undefined });
 		}
 
 		const { error } = await supabase.auth.signInWithPassword(parsed.data);
