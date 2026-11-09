@@ -122,6 +122,7 @@
 
 		<nav aria-label="Seasons" class="-mx-4 mt-6 flex gap-2 overflow-x-auto px-4 pb-1">
 			{#each data.seasons as s (s.season_number)}
+				<!-- eslint-disable svelte/no-navigation-without-resolve -->
 				<a
 					href={`${base}?season=${s.season_number}`}
 					data-sveltekit-noscroll
@@ -133,6 +134,7 @@
 						<Check class="ml-0.5 inline size-3.5" aria-label="Completed" />
 					{/if}
 				</a>
+				<!-- eslint-enable svelte/no-navigation-without-resolve -->
 			{/each}
 		</nav>
 

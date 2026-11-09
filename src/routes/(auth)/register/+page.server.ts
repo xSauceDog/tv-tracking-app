@@ -4,7 +4,7 @@ import { fieldErrors, type FieldErrors } from "#lib/utils/forms.js";
 import type { Actions } from "./$types";
 
 export const actions: Actions = {
-	default: async ({ request, url, locals: { supabase } }) => {
+	default: async ({ request, locals: { supabase } }) => {
 		const form = Object.fromEntries(await request.formData());
 		const values = { email: String(form.email ?? ""), username: String(form.username ?? "") };
 
