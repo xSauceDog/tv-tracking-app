@@ -4,6 +4,7 @@
 	import { House, Library, ListOrdered, Settings, Tv } from "@lucide/svelte";
 	import Avatar from "#lib/components/Avatar.svelte";
 	import Toaster from "#lib/components/Toaster.svelte";
+	import ConfirmDialog from "#lib/components/ConfirmDialog.svelte";
 
 	let { data, children } = $props();
 
@@ -102,4 +103,5 @@
 		{/if}
 	</nav>
 	<Toaster />
+	<ConfirmDialog />
 </div>

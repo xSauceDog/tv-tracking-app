@@ -4,6 +4,7 @@
 	import { X } from "@lucide/svelte";
 	import Poster from "#lib/components/Poster.svelte";
 	import ShowSearch from "#lib/components/ShowSearch.svelte";
+	import { confirmDialog } from "#lib/confirm.svelte.js";
 
 	let { data, form } = $props();
 
@@ -39,9 +40,18 @@
 		<form
 			method="POST"
 			action="?/remove"
-			use:enhance={() =>
-				async ({ update }) =>
-					update({ reset: false })}
+			use:enhance={async ({ cancel }) => {
+				const ok = await confirmDialog.ask({
+					title: `Remove “${s.name}”?`,
+					message: "It will also be removed from every list you've added it to.",
+					confirmLabel: "Remove"
+				});
+				if (!ok) {
+					cancel();
+					return;
+				}
+				return async ({ update }) => update({ reset: false });
+			}}
 		>
 			<input type="hidden" name="show_id" value={s.id} />
 			<button class="icon-btn hover:text-red-300" aria-label="Remove {s.name} from your shows">

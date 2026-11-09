@@ -351,6 +351,10 @@ export type Database = {
           shows_tracked: number
         }[]
       }
+      remove_show_from_library: {
+        Args: { p_show_id: string }
+        Returns: undefined
+      }
       reorder_list_items: {
         Args: { p_item_ids: string[]; p_list_id: string }
         Returns: undefined

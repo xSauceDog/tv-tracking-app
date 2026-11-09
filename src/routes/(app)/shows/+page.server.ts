@@ -61,10 +61,9 @@ export const actions: Actions = {
 		const parsed = removeShowSchema.safeParse(Object.fromEntries(await request.formData()));
 		if (!parsed.success) return fail(400, { message: "Invalid show." });
 
-		const { error: dbError } = await supabase
-			.from("user_shows")
-			.delete()
-			.eq("show_id", parsed.data.show_id);
+		const { error: dbError } = await supabase.rpc("remove_show_from_library", {
+			p_show_id: parsed.data.show_id
+		});
 		if (dbError) return fail(500, { message: "Could not remove that show." });
 
 		return { removed: true };

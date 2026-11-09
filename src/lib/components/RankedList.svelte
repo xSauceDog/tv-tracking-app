@@ -9,6 +9,7 @@
 	import Poster from "#lib/components/Poster.svelte";
 	import { resolve } from "$app/paths";
 	import ProgressBadge from "#lib/components/ProgressBadge.svelte";
+	import { confirmDialog } from "#lib/confirm.svelte.js";
 
 	type Item = {
 		id: string;
@@ -223,7 +224,18 @@
 					<ChevronDown class="size-5" />
 				</button>
 
-				<form method="POST" action="?/remove" use:enhance>
+				<form
+					method="POST"
+					action="?/remove"
+					use:enhance={async ({ cancel }) => {
+						const ok = await confirmDialog.ask({
+							title: `Remove “${item.show.name}”?`,
+							message: "It will be taken off this ranking. It stays in your Shows tab.",
+							confirmLabel: "Remove"
+						});
+						if (!ok) cancel();
+					}}
+				>
 					<input type="hidden" name="id" value={item.id} />
 					<button class="icon-btn hover:text-red-300" aria-label="Remove {item.show.name}">
 						<Trash class="size-4" />
