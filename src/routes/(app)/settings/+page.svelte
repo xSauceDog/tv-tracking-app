@@ -69,15 +69,6 @@
 	}}
 >
 	<Field
-		label="Username"
-		name="username"
-		required
-		minlength={3}
-		maxlength={20}
-		value={v?.username ?? ""}
-		error={form?.errors?.username?.[0]}
-	/>
-	<Field
 		label="Display name"
 		name="display_name"
 		maxlength={50}
