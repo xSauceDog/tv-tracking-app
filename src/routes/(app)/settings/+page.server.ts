@@ -4,6 +4,7 @@ import { settingsSchema } from "#lib/schemas/settings.js";
 import { getPreviousEpisodes, savePreviousEpisodes } from "#lib/server/settings.js";
 import { fieldErrors, type FieldErrors } from "#lib/utils/forms.js";
 import type { Actions, PageServerLoad } from "./$types";
+import { avatarSchema } from "#lib/schemas/avatar.js";
 
 export const load: PageServerLoad = async ({ locals: { supabase } }) => ({
 	previousEpisodes: await getPreviousEpisodes(supabase)
@@ -41,5 +42,56 @@ export const actions: Actions = {
 		if (error) return fail(500, { prefsMessage: "Could not save your preference." });
 
 		return { prefsSaved: true };
+	},
+
+	avatar: async ({ request, locals: { supabase, user } }) => {
+		const parsed = avatarSchema.safeParse(Object.fromEntries(await request.formData()));
+		// The DB constraint enforces this too; checking here gives a clean 400.
+		if (!parsed.success || !parsed.data.path.startsWith(`${user!.id}/`)) {
+			return fail(400, { avatarMessage: "Invalid image." });
+		}
+
+		const { data: before } = await supabase
+			.from("profiles")
+			.select("avatar_path")
+			.eq("id", user!.id)
+			.single();
+
+		const { error } = await supabase
+			.from("profiles")
+			.update({ avatar_path: parsed.data.path })
+			.eq("id", user!.id);
+		if (error) return fail(500, { avatarMessage: "Could not save your picture." });
+
+		// Best-effort cleanup of the previous file.
+		if (before?.avatar_path && before.avatar_path !== parsed.data.path) {
+			const { error: rmError } = await supabase.storage
+				.from("avatars")
+				.remove([before.avatar_path]);
+			if (rmError) console.error("old avatar cleanup failed", rmError);
+		}
+		return { avatarSaved: true };
+	},
+
+	removeAvatar: async ({ locals: { supabase, user } }) => {
+		const { data: before } = await supabase
+			.from("profiles")
+			.select("avatar_path")
+			.eq("id", user!.id)
+			.single();
+
+		const { error } = await supabase
+			.from("profiles")
+			.update({ avatar_path: null })
+			.eq("id", user!.id);
+		if (error) return fail(500, { avatarMessage: "Could not remove your picture." });
+
+		if (before?.avatar_path) {
+			const { error: rmError } = await supabase.storage
+				.from("avatars")
+				.remove([before.avatar_path]);
+			if (rmError) console.error("avatar cleanup failed", rmError);
+		}
+		return { avatarRemoved: true };
 	}
 };

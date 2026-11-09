@@ -11,7 +11,7 @@ export const load: PageServerLoad = async ({ params, locals: { supabase, user } 
 	// Profiles are publicly readable via RLS.
 	const { data: member, error: profileError } = await supabase
 		.from("profiles")
-		.select("id, username, display_name, avatar_url, bio, created_at")
+		.select("id, username, display_name, avatar_path, bio, created_at")
 		.eq("username", username)
 		.maybeSingle();
 	if (profileError) error(500, "Could not load this profile");

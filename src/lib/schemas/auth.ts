@@ -31,5 +31,3 @@ export const profileSchema = z.object({
 		.max(280, "At most 280 characters")
 		.transform((v) => v || null)
 });
-
-export const oauthProviderSchema = z.enum(["discord", "google"]);

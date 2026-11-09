@@ -3,6 +3,7 @@
 	import Field from "#lib/components/Field.svelte";
 	import { toast } from "#lib/toast.svelte.js";
 	import { resolve } from "$app/paths";
+	import AvatarUpload from "#lib/components/AvatarUpload.svelte";
 
 	let savingPrefs = $state(false);
 
@@ -56,10 +57,21 @@
 
 <h2 class="mt-10 text-2xl font-semibold tracking-tight">Profile</h2>
 
+{#if data.user && data.profile}
+	<div class="card mt-6 max-w-xl">
+		<AvatarUpload
+			supabase={data.supabase}
+			userId={data.user.id}
+			path={data.profile.avatar_path}
+			name={data.profile.display_name ?? data.profile.username}
+		/>
+	</div>
+{/if}
+
 <form
 	method="POST"
 	action="?/profile"
-	class="card mt-6 max-w-xl space-y-4"
+	class="card mt-4 max-w-xl space-y-4"
 	use:enhance={() => {
 		submitting = true;
 		return async ({ update }) => {

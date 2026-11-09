@@ -6,7 +6,6 @@
 
 	let { form } = $props();
 	let submitting = $state(false);
-	const next = $derived(page.url.searchParams.get("next") ?? "");
 	const urlError = $derived(page.url.searchParams.get("error"));
 </script>
 
@@ -23,7 +22,6 @@
 
 <form
 	method="POST"
-	action="?/login"
 	class="mt-6 space-y-4"
 	use:enhance={() => {
 		submitting = true;
@@ -53,16 +51,6 @@
 	<button class="btn btn-primary w-full" disabled={submitting}>
 		{submitting ? "Signing in…" : "Sign in"}
 	</button>
-</form>
-
-<div class="my-6 flex items-center gap-3 text-xs text-zinc-500">
-	<span class="h-px flex-1 bg-white/10"></span> or <span class="h-px flex-1 bg-white/10"></span>
-</div>
-
-<form method="POST" action="?/oauth" class="grid grid-cols-2 gap-3">
-	<input type="hidden" name="next" value={next} />
-	<button class="btn btn-ghost" name="provider" value="discord">Discord</button>
-	<button class="btn btn-ghost" name="provider" value="google">Google</button>
 </form>
 
 <p class="mt-6 text-center text-sm text-zinc-400">

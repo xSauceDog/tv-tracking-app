@@ -4,6 +4,7 @@
 	import Avatar from "#lib/components/Avatar.svelte";
 	import { formatMonthYear } from "#lib/utils/dates.js";
 	import { formatNumber, watchTime } from "#lib/utils/stats.js";
+	import { avatarUrl } from "#lib/utils/images.js";
 
 	let { data } = $props();
 
@@ -38,7 +39,7 @@
 	<section
 		class="card flex flex-col items-center gap-4 text-center sm:flex-row sm:items-start sm:text-left"
 	>
-		<Avatar src={data.member.avatar_url} {name} class="size-24 text-4xl sm:size-28" />
+		<Avatar src={avatarUrl(data.member.avatar_path)} {name} class="size-24 text-4xl sm:size-28" />
 
 		<div class="min-w-0 flex-1">
 			<h1 class="truncate text-2xl font-semibold tracking-tight sm:text-3xl">{name}</h1>

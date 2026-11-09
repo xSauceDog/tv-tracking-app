@@ -1,12 +1,12 @@
 import { fail, redirect } from "@sveltejs/kit";
-import { loginSchema, oauthProviderSchema } from "#lib/schemas/auth.js";
+import { loginSchema } from "#lib/schemas/auth.js";
 import { fieldErrors, type FieldErrors } from "#lib/utils/forms.js";
 import { safeRedirectPath } from "#lib/utils/redirect.js";
 import type { Actions } from "./$types";
-import { PUBLIC_SUPABASE_URL } from "$app/env/public";
 
 export const actions: Actions = {
-	login: async ({ request, url, locals: { supabase } }) => {
+	// A single default action posts to the current URL, so ?next= survives.
+	default: async ({ request, url, locals: { supabase } }) => {
 		const form = Object.fromEntries(await request.formData());
 		const email = String(form.email ?? "");
 
@@ -22,28 +22,5 @@ export const actions: Actions = {
 		}
 
 		redirect(303, safeRedirectPath(url.searchParams.get("next")));
-	},
-
-	oauth: async ({ request, url, locals: { supabase } }) => {
-		const form = await request.formData();
-		const provider = oauthProviderSchema.safeParse(form.get("provider"));
-		if (!provider.success) {
-			return fail(400, { email: "", errors: {} as FieldErrors, message: "Unsupported provider." });
-		}
-
-		const next = safeRedirectPath(String(form.get("next") ?? ""));
-		const { data, error } = await supabase.auth.signInWithOAuth({
-			provider: provider.data,
-			options: { redirectTo: `${url.origin}/auth/callback?next=${encodeURIComponent(next)}` }
-		});
-
-		if (error || !data.url) {
-			return fail(500, {
-				email: "",
-				errors: {} as FieldErrors,
-				message: "Could not start sign-in."
-			});
-		}
-		redirect(303, data.url, { external: [new URL(PUBLIC_SUPABASE_URL).origin] });
 	}
 };

@@ -5,6 +5,7 @@
 	import Avatar from "#lib/components/Avatar.svelte";
 	import Toaster from "#lib/components/Toaster.svelte";
 	import ConfirmDialog from "#lib/components/ConfirmDialog.svelte";
+	import { avatarUrl } from "#lib/utils/images.js";
 
 	let { data, children } = $props();
 
@@ -52,7 +53,7 @@
 						aria-current={onMyProfile ? "page" : undefined}
 						class="hidden items-center gap-2 rounded-full py-1 pr-3 pl-1 text-sm text-zinc-300 ring-1 ring-white/10 transition hover:bg-white/10 aria-[current=page]:bg-white/10 aria-[current=page]:text-zinc-100 md:flex"
 					>
-						<Avatar src={me.avatar_url} name={meName} class="size-7 text-xs" />
+						<Avatar src={avatarUrl(me.avatar_path)} name={meName} class="size-7 text-xs" />
 						<span class="max-w-32 truncate">{me.username}</span>
 					</a>
 				{/if}
@@ -97,7 +98,7 @@
 				aria-current={onMyProfile ? "page" : undefined}
 				class="flex flex-col items-center gap-1 py-2.5 text-xs text-zinc-500 aria-[current=page]:text-brand-300"
 			>
-				<Avatar src={me.avatar_url} name={meName} class="size-5 text-[10px]" />
+				<Avatar src={avatarUrl(me.avatar_path)} name={meName} class="size-5 text-[10px]" />
 				Profile
 			</a>
 		{/if}
