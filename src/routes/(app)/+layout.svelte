@@ -6,6 +6,7 @@
 	import Toaster from "#lib/components/Toaster.svelte";
 	import ConfirmDialog from "#lib/components/ConfirmDialog.svelte";
 	import { avatarUrl } from "#lib/utils/images.js";
+	import SiteFooter from "#lib/components/SiteFooter.svelte";
 
 	let { data, children } = $props();
 
@@ -77,6 +78,7 @@
 	<main class="mx-auto max-w-6xl px-4 py-8">
 		{@render children()}
 	</main>
+	<SiteFooter />
 
 	<nav
 		class="fixed inset-x-0 bottom-0 z-30 grid grid-cols-4 border-t border-white/10 bg-zinc-950/80 pb-[env(safe-area-inset-bottom)] backdrop-blur-xl md:hidden"

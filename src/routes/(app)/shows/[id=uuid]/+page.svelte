@@ -6,6 +6,7 @@
 	import { toast } from "#lib/toast.svelte.js";
 	import { formatAirDate } from "#lib/utils/dates.js";
 	import ProgressBadge from "#lib/components/ProgressBadge.svelte";
+	import ExpandableText from "#lib/components/ExpandableText.svelte";
 
 	let { data, form } = $props();
 
@@ -64,7 +65,7 @@
 		<ChevronLeft class="size-4" /> Lists
 	</a>
 
-	<div class="mt-4 flex gap-4">
+	<div class="mt-4 flex items-start gap-4">
 		<Poster
 			path={data.show.poster_path}
 			class="w-24 shrink-0 sm:w-32"
@@ -82,7 +83,9 @@
 				status={data.show.status}
 			/>
 			{#if data.show.overview}
-				<p class="mt-3 line-clamp-4 text-sm text-zinc-300">{data.show.overview}</p>
+				{#key data.show.id}
+					<ExpandableText text={data.show.overview} class="mt-3 text-sm text-zinc-300" />
+				{/key}
 			{/if}
 		</div>
 	</div>
@@ -120,7 +123,7 @@
 			</div>
 		</div>
 
-		<nav aria-label="Seasons" class="-mx-4 mt-6 flex gap-2 overflow-x-auto px-4 pb-1">
+		<nav aria-label="Seasons" class="-mx-4 mt-5 flex gap-2 overflow-x-auto px-4 py-1">
 			{#each data.seasons as s (s.season_number)}
 				<!-- eslint-disable svelte/no-navigation-without-resolve -->
 				<a
