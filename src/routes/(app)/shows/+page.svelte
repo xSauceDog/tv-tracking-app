@@ -1,7 +1,9 @@
 <script lang="ts">
 	import { enhance } from "$app/forms";
 	import { resolve } from "$app/paths";
-	import { X } from "@lucide/svelte";
+	import { slide } from "svelte/transition";
+	import { MediaQuery, SvelteSet } from "svelte/reactivity";
+	import { ChevronDown, X } from "@lucide/svelte";
 	import Poster from "#lib/components/Poster.svelte";
 	import ShowSearch from "#lib/components/ShowSearch.svelte";
 	import { confirmDialog } from "#lib/confirm.svelte.js";
@@ -9,10 +11,36 @@
 	let { data, form } = $props();
 
 	const sections = $derived([
-		{ title: "Watching", items: data.watching, empty: "Nothing in progress yet." },
-		{ title: "Haven't started", items: data.notStarted, empty: "Your watch list is empty." },
-		{ title: "Completed", items: data.completed, empty: "No finished shows yet." }
+		{
+			key: "watching",
+			title: "Watching",
+			items: data.watching,
+			empty: "Nothing in progress yet."
+		},
+		{
+			key: "not-started",
+			title: "Haven't started",
+			items: data.notStarted,
+			empty: "Your watch list is empty."
+		},
+		{
+			key: "completed",
+			title: "Completed",
+			items: data.completed,
+			empty: "No finished shows yet."
+		}
 	]);
+
+	// Keys of the sections the user has collapsed. Everything starts expanded.
+	const collapsed = new SvelteSet<string>();
+
+	function toggle(key: string) {
+		if (collapsed.has(key)) collapsed.delete(key);
+		else collapsed.add(key);
+	}
+
+	const reducedMotion = new MediaQuery("(prefers-reduced-motion: reduce)");
+	const duration = $derived(reducedMotion.current ? 0 : 200);
 </script>
 
 <svelte:head><title>Shows · Rankr</title></svelte:head>
@@ -74,25 +102,47 @@
 		</p>
 	{/if}
 
-	{#each sections as section (section.title)}
-		<section class="mt-10">
-			<h2 class="mb-3 flex items-baseline gap-2 text-lg font-semibold">
-				{section.title}
-				<span class="text-sm font-normal text-zinc-500 tabular-nums">{section.items.length}</span>
-			</h2>
-			{#if section.items.length}
-				<ul class="space-y-2">
-					{#each section.items as s (s.id)}
-						{@render row(s)}
-					{/each}
-				</ul>
-			{:else}
-				<p
-					class="rounded-xl border border-dashed border-white/10 p-6 text-center text-sm text-zinc-500"
+	{#each sections as section (section.key)}
+		{@const open = !collapsed.has(section.key)}
+		{@const panelId = `shows-${section.key}`}
+		<section class="mt-8">
+			<h2 class="text-lg font-semibold">
+				<button
+					type="button"
+					aria-expanded={open}
+					aria-controls={panelId}
+					onclick={() => toggle(section.key)}
+					class="-mx-2 flex w-full items-center gap-2 rounded-lg px-2 py-1.5 text-left transition hover:bg-white/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-400"
 				>
-					{section.empty}
-				</p>
-			{/if}
+					<ChevronDown
+						class={["size-5 shrink-0 text-zinc-500 transition-transform", !open && "-rotate-90"]}
+					/>
+					{section.title}
+					<span class="text-sm font-normal text-zinc-500 tabular-nums">
+						{section.items.length}
+					</span>
+				</button>
+			</h2>
+
+			<div id={panelId}>
+				{#if open}
+					<div transition:slide={{ duration }} class="pt-3">
+						{#if section.items.length}
+							<ul class="space-y-2">
+								{#each section.items as s (s.id)}
+									{@render row(s)}
+								{/each}
+							</ul>
+						{:else}
+							<p
+								class="rounded-xl border border-dashed border-white/10 p-6 text-center text-sm text-zinc-500"
+							>
+								{section.empty}
+							</p>
+						{/if}
+					</div>
+				{/if}
+			</div>
 		</section>
 	{/each}
 </div>

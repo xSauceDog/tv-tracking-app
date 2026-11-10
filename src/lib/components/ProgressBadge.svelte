@@ -14,8 +14,8 @@
 	const tones = {
 		idle: "bg-white/5 text-zinc-400 ring-white/10",
 		progress: "bg-brand-500/15 text-brand-300 ring-brand-400/30",
-		"caught-up": "bg-emerald-500/15 text-emerald-300 ring-emerald-400/30",
-		done: "bg-amber-400/15 text-amber-300 ring-amber-400/30"
+		"caught-up": "bg-sky-500/15 text-sky-300 ring-sky-400/30",
+		done: "bg-emerald-500/15 text-emerald-300 ring-emerald-400/30"
 	};
 </script>
 
