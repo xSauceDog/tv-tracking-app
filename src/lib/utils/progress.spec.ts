@@ -3,7 +3,6 @@ import { airingLabel, buildAiringSoon, progressBadge, type ShowStatusRow } from 
 
 describe("airingLabel", () => {
 	it("formats countdowns", () => {
-		expect(airingLabel(null)).toBe("TBD");
 		expect(airingLabel(0)).toBe("Today");
 		expect(airingLabel(1)).toBe("Tomorrow");
 		expect(airingLabel(12)).toBe("In 12 days");
@@ -41,7 +40,7 @@ describe("buildAiringSoon", () => {
 		next_name: days === null ? null : "Ep"
 	});
 
-	it("sorts soonest first, puts TBD last, and drops finished shows without a date", () => {
+	it("sorts soonest first and drops shows without a release date", () => {
 		const shows = new Map([
 			["a", show("a", "Alpha", "Returning Series")],
 			["b", show("b", "Bravo", "Returning Series")],
@@ -56,8 +55,7 @@ describe("buildAiringSoon", () => {
 		]);
 		expect(result.map((i) => [i.show.id, i.daysUntil])).toEqual([
 			["d", 1],
-			["b", 5],
-			["a", null]
+			["b", 5]
 		]);
 	});
 });

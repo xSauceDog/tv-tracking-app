@@ -54,21 +54,19 @@ export type AiringShow = {
 
 export type AiringItem = {
 	show: AiringShow;
-	/** null = no date announced yet (TBD) */
-	daysUntil: number | null;
-	episode: { season: number; number: number; name: string } | null;
+	daysUntil: number;
+	episode: { season: number; number: number; name: string };
 };
 
-export function airingLabel(daysUntil: number | null): string {
-	if (daysUntil === null) return "TBD";
+export function airingLabel(daysUntil: number): string {
 	if (daysUntil <= 0) return "Today";
 	if (daysUntil === 1) return "Tomorrow";
 	return `In ${daysUntil} days`;
 }
 
 /**
- * A show with a dated upcoming episode shows its countdown. A show that is still running but
- * has no dated episode shows "TBD". Finished shows are left out. Soonest first, TBD last.
+ * Only shows with a dated upcoming episode are included, soonest first.
+ * Shows with no announced date (TBD) are left out.
  */
 export function buildAiringSoon(
 	shows: Map<string, AiringShow>,
@@ -80,22 +78,15 @@ export function buildAiringSoon(
 	for (const r of rows) {
 		const show = shows.get(r.show_id);
 		if (!show) continue;
+		if (r.days_until === null || r.next_season === null || r.next_episode === null) continue;
 
-		if (r.days_until !== null && r.next_season !== null && r.next_episode !== null) {
-			items.push({
-				show,
-				daysUntil: r.days_until,
-				episode: { season: r.next_season, number: r.next_episode, name: r.next_name ?? "" }
-			});
-		} else if (!isFinished(show.status)) {
-			items.push({ show, daysUntil: null, episode: null });
-		}
+		items.push({
+			show,
+			daysUntil: r.days_until,
+			episode: { season: r.next_season, number: r.next_episode, name: r.next_name ?? "" }
+		});
 	}
 
-	items.sort(
-		(a, b) =>
-			(a.daysUntil ?? Infinity) - (b.daysUntil ?? Infinity) ||
-			a.show.name.localeCompare(b.show.name)
-	);
+	items.sort((a, b) => a.daysUntil - b.daysUntil || a.show.name.localeCompare(b.show.name));
 	return items.slice(0, limit);
 }

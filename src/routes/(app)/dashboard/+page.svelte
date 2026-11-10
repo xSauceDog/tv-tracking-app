@@ -30,23 +30,17 @@
 						<div class="min-w-0 flex-1">
 							<p class="truncate text-sm font-medium">{item.show.name}</p>
 							<p class="truncate text-xs text-zinc-500">
-								{#if item.episode}
-									S{item.episode.season} E{item.episode.number}{item.episode.name
-										? ` · ${item.episode.name}`
-										: ""}
-								{:else}
-									Next episode date not announced
-								{/if}
+								S{item.episode.season} E{item.episode.number}{item.episode.name
+									? ` · ${item.episode.name}`
+									: ""}
 							</p>
 						</div>
 						<span
 							class={[
 								"shrink-0 rounded-full px-2.5 py-1 text-xs font-medium tabular-nums ring-1 ring-inset",
-								item.daysUntil === null
-									? "bg-white/5 text-zinc-400 ring-white/10"
-									: item.daysUntil <= 1
-										? "bg-brand-500/20 text-brand-300 ring-brand-400/40"
-										: "bg-white/5 text-zinc-200 ring-white/10"
+								item.daysUntil <= 1
+									? "bg-brand-500/20 text-brand-300 ring-brand-400/40"
+									: "bg-white/5 text-zinc-200 ring-white/10"
 							]}
 						>
 							{airingLabel(item.daysUntil)}
@@ -57,7 +51,7 @@
 		</ul>
 	{:else}
 		<div class="card mt-3 text-center text-sm text-zinc-400">
-			Nothing on the schedule yet. Add shows to a list and upcoming episodes will show up here.
+			Nothing on the schedule yet. Shows on your lists with an announced air date will show up here.
 		</div>
 	{/if}
 </section>
