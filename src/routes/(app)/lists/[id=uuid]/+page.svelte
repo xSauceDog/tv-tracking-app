@@ -3,6 +3,7 @@
 	import Field from "#lib/components/Field.svelte";
 	import RankedList from "#lib/components/RankedList.svelte";
 	import ShowSearch from "#lib/components/ShowSearch.svelte";
+	import ShareListButton from "#lib/components/ShareListButton.svelte";
 
 	let { data, form } = $props();
 	const count = $derived(data.list.items.length);
@@ -10,11 +11,22 @@
 
 <svelte:head><title>{data.list.name} · Rankr</title></svelte:head>
 
-<h1 class="truncate text-2xl font-semibold tracking-tight sm:text-3xl">{data.list.name}</h1>
-<p class="mt-1 text-sm text-zinc-400">
-	{count}
-	{count === 1 ? "show" : "shows"} · {data.list.is_public ? "Public" : "Private"}
-</p>
+<div class="flex items-start justify-between gap-3">
+	<div class="min-w-0">
+		<h1 class="truncate text-2xl font-semibold tracking-tight sm:text-3xl">{data.list.name}</h1>
+		<p class="mt-1 text-sm text-zinc-400">
+			{count}
+			{count === 1 ? "show" : "shows"} · {data.list.is_public ? "Public" : "Private"}
+		</p>
+	</div>
+	{#if data.profile}
+		<ShareListButton
+			username={data.profile.username}
+			listId={data.list.id}
+			isPublic={data.list.is_public}
+		/>
+	{/if}
+</div>
 
 {#if form?.message}
 	<p class="mt-4 rounded-xl bg-red-500/10 p-3 text-sm text-red-300" role="alert">{form.message}</p>
