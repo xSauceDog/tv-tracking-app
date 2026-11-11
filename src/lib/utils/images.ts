@@ -11,3 +11,7 @@ export const posterSrcset = (path: string) =>
 
 export const avatarUrl = (path: string | null | undefined) =>
 	path ? `${PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/${path}` : null;
+
+export const providerLogoUrl = (path: string, width: 45 | 92 = 45) => `${IMG}/w${width}${path}`;
+export const providerLogoSrcset = (path: string) =>
+	`${providerLogoUrl(path, 45)} 1x, ${providerLogoUrl(path, 92)} 2x`;

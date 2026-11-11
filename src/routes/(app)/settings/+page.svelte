@@ -4,6 +4,9 @@
 	import { toast } from "#lib/toast.svelte.js";
 	import { resolve } from "$app/paths";
 	import AvatarUpload from "#lib/components/AvatarUpload.svelte";
+	import { REGION_OPTIONS } from "#lib/utils/regions.js";
+
+	let savingRegion = $state(false);
 
 	let savingPrefs = $state(false);
 
@@ -152,5 +155,43 @@
 
 	<button class="btn btn-primary" disabled={savingPrefs}>
 		{savingPrefs ? "Saving…" : "Save preference"}
+	</button>
+</form>
+
+<h2 class="mt-10 text-2xl font-semibold tracking-tight">Streaming</h2>
+
+<form
+	method="POST"
+	action="?/region"
+	class="card mt-6 max-w-xl space-y-4"
+	use:enhance={() => {
+		savingRegion = true;
+		return async ({ result, update }) => {
+			await update({ reset: false });
+			savingRegion = false;
+			if (result.type === "success") toast.show("Country saved");
+		};
+	}}
+>
+	<div class="field">
+		<label for="region">Country</label>
+		<select
+			id="region"
+			name="region"
+			class="w-full rounded-xl border border-white/10 bg-zinc-900/60 px-3.5 py-2.5 text-base text-zinc-100 focus:border-brand-400 focus:ring-2 focus:ring-brand-400/30 focus:outline-none"
+		>
+			{#each REGION_OPTIONS as r (r.code)}
+				<option value={r.code} selected={r.code === data.region}>{r.name}</option>
+			{/each}
+		</select>
+		<p class="mt-1.5 text-xs text-zinc-500">Where-to-watch results are shown for this country.</p>
+	</div>
+
+	{#if form?.regionMessage}
+		<p class="text-sm text-red-400" role="alert">{form.regionMessage}</p>
+	{/if}
+
+	<button class="btn btn-primary" disabled={savingRegion}>
+		{savingRegion ? "Saving…" : "Save country"}
 	</button>
 </form>

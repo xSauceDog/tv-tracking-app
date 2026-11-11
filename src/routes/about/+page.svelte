@@ -34,5 +34,14 @@
 		<p class="mt-2 text-sm text-zinc-400">
 			Show titles, descriptions, posters and episode air dates are provided by TMDB.
 		</p>
+		<p class="mt-2 text-sm text-zinc-400">
+			Where-to-watch availability is provided by
+			<a
+				href="https://www.justwatch.com"
+				target="_blank"
+				rel="noopener noreferrer"
+				class="text-brand-300 hover:underline">JustWatch</a
+			>.
+		</p>
 	</section>
 </main>

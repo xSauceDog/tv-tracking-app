@@ -187,6 +187,38 @@ export type Database = {
 				};
 				Relationships: [];
 			};
+			show_providers: {
+				Row: {
+					link: string | null;
+					options: Json;
+					region: string;
+					show_id: string;
+					synced_at: string;
+				};
+				Insert: {
+					link?: string | null;
+					options: Json;
+					region: string;
+					show_id: string;
+					synced_at?: string;
+				};
+				Update: {
+					link?: string | null;
+					options?: Json;
+					region?: string;
+					show_id?: string;
+					synced_at?: string;
+				};
+				Relationships: [
+					{
+						foreignKeyName: "show_providers_show_id_fkey";
+						columns: ["show_id"];
+						isOneToOne: false;
+						referencedRelation: "shows";
+						referencedColumns: ["id"];
+					}
+				];
+			};
 			shows: {
 				Row: {
 					backdrop_path: string | null;
@@ -236,18 +268,21 @@ export type Database = {
 				Row: {
 					created_at: string;
 					previous_episodes: string;
+					region: string;
 					updated_at: string;
 					user_id: string;
 				};
 				Insert: {
 					created_at?: string;
 					previous_episodes?: string;
+					region?: string;
 					updated_at?: string;
 					user_id?: string;
 				};
 				Update: {
 					created_at?: string;
 					previous_episodes?: string;
+					region?: string;
 					updated_at?: string;
 					user_id?: string;
 				};

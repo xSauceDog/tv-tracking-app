@@ -2,6 +2,7 @@ import { z } from "zod";
 import { TMDB_READ_TOKEN } from "$app/env/private";
 import type { TablesInsert } from "#lib/database.types.js";
 import type { ShowSearchResult } from "#lib/types.js";
+import { addonInfo, WATCH_KINDS, type WatchOptions } from "#lib/utils/providers.js";
 
 const BASE = "https://api.themoviedb.org/3";
 
@@ -105,3 +106,52 @@ export const getShowDetail = (tmdbId: number) => request(`/tv/${tmdbId}`, showDe
 
 export const getSeasonEpisodes = (tmdbId: number, season: number) =>
 	request(`/tv/${tmdbId}/season/${season}`, seasonSchema);
+
+const providerSchema = z.object({
+	provider_id: z.number(),
+	provider_name: z.string(),
+	logo_path: nullable,
+	display_priority: z
+		.number()
+		.nullish()
+		.transform((v) => v ?? 999)
+});
+const providerList = z.array(providerSchema).default([]);
+
+const watchProvidersSchema = z.object({
+	results: z.record(
+		z.string(),
+		z.object({
+			link: nullable,
+			flatrate: providerList,
+			free: providerList,
+			ads: providerList,
+			rent: providerList,
+			buy: providerList
+		})
+	)
+});
+
+/** Providers for one country. An unknown show or country simply yields empty options. */
+export async function getWatchProviders(
+	tmdbId: number,
+	region: string
+): Promise<{ link: string | null; options: WatchOptions }> {
+	const data = await request(`/tv/${tmdbId}/watch/providers`, watchProvidersSchema);
+	const r = data?.results[region];
+
+	const options = Object.fromEntries(
+		WATCH_KINDS.map((kind) => [
+			kind,
+			(r?.[kind] ?? [])
+				.slice()
+				.sort((a, b) => a.display_priority - b.display_priority)
+				.map((p) => {
+					const { name, via } = addonInfo(p.provider_name);
+					return { id: p.provider_id, name, logo_path: p.logo_path, addon_via: via };
+				})
+		])
+	) as WatchOptions;
+
+	return { link: r?.link?.startsWith("https://") ? r.link : null, options };
+}

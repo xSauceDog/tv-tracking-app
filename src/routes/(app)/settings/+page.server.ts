@@ -1,14 +1,23 @@
 import { fail } from "@sveltejs/kit";
 import { profileSchema } from "#lib/schemas/auth.js";
-import { settingsSchema } from "#lib/schemas/settings.js";
-import { getPreviousEpisodes, savePreviousEpisodes } from "#lib/server/settings.js";
+import { settingsSchema, regionFormSchema } from "#lib/schemas/settings.js";
+import {
+	getPreviousEpisodes,
+	getRegion,
+	savePreviousEpisodes,
+	saveRegion
+} from "#lib/server/settings.js";
 import { fieldErrors, type FieldErrors } from "#lib/utils/forms.js";
 import type { Actions, PageServerLoad } from "./$types";
 import { avatarSchema } from "#lib/schemas/avatar.js";
 
-export const load: PageServerLoad = async ({ locals: { supabase } }) => ({
-	previousEpisodes: await getPreviousEpisodes(supabase)
-});
+export const load: PageServerLoad = async ({ locals: { supabase } }) => {
+	const [previousEpisodes, region] = await Promise.all([
+		getPreviousEpisodes(supabase),
+		getRegion(supabase)
+	]);
+	return { previousEpisodes, region };
+};
 
 export const actions: Actions = {
 	profile: async ({ request, locals: { supabase, user } }) => {
@@ -93,5 +102,14 @@ export const actions: Actions = {
 			if (rmError) console.error("avatar cleanup failed", rmError);
 		}
 		return { avatarRemoved: true };
+	},
+	region: async ({ request, locals: { supabase } }) => {
+		const parsed = regionFormSchema.safeParse(Object.fromEntries(await request.formData()));
+		if (!parsed.success) return fail(400, { regionMessage: "Pick a country from the list." });
+
+		const { error } = await saveRegion(supabase, parsed.data.region);
+		if (error) return fail(500, { regionMessage: "Could not save your country." });
+
+		return { regionSaved: true };
 	}
 };

@@ -7,6 +7,7 @@
 	import { formatAirDate } from "#lib/utils/dates.js";
 	import ProgressBadge from "#lib/components/ProgressBadge.svelte";
 	import ExpandableText from "#lib/components/ExpandableText.svelte";
+	import WhereToWatch from "#lib/components/WhereToWatch.svelte";
 
 	let { data, form } = $props();
 
@@ -89,6 +90,10 @@
 			{/if}
 		</div>
 	</div>
+
+	{#key data.show.id}
+		<WhereToWatch showId={data.show.id} class="mt-6" />
+	{/key}
 
 	{#if form?.message}
 		<p class="mt-4 rounded-xl bg-red-500/10 p-3 text-sm text-red-300" role="alert">
